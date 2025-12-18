@@ -1,0 +1,101 @@
+/* Fondo Matrix */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  color: #fff;
+  overflow-x: hidden;
+}
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  background: black;
+}
+
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(20,20,20,0.85);
+  padding: 15px 30px;
+  box-shadow: 0 0 15px rgba(0,255,0,0.4);
+}
+.logo { font-size: 1.5rem; font-weight: bold; color: #e50914; text-shadow: 0 0 10px #e50914; }
+.nav-links { list-style: none; display: flex; gap: 20px; }
+.nav-links li a { color: #fff; text-decoration: none; transition: color 0.3s ease; }
+.nav-links li a:hover, .nav-links li a.active { color: #e50914; }
+.usuario { font-size: 1rem; color: #0f0; }
+
+/* Hero */
+.hero {
+  text-align: center;
+  padding: 60px 20px 20px;
+  background: rgba(0,0,0,0.6);
+  animation: fadeIn 1.5s ease forwards;
+}
+.hero h1 { font-size: 2rem; margin: 0 0 8px 0; }
+.hero p { font-size: 1rem; color: #cfcfcf; }
+.highlight { color: #e50914; text-shadow: 0 0 10px #e50914; }
+
+/* Formulario de acceso */
+.staff-access {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
+#staffForm {
+  background: rgba(20,20,20,0.85);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0,255,0,0.4);
+}
+#staffForm input {
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  background: #1c1c1c;
+  color: #fff;
+  font-size: 1rem;
+  margin-bottom: 15px;
+  width: 100%;
+}
+#staffForm input:focus { background: #333; outline: none; }
+#staffForm .btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  background: #e50914;
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+#staffForm .btn:hover { background: #b20710; transform: scale(1.05); }
+
+/* Menú Staff */
+#staffMenu {
+  max-width: 600px;
+  margin: 40px auto;
+  background: rgba(20,20,20,0.85);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0,255,0,0.4);
+}
+.staff-options {
+  list-style: none;
+  padding: 0;
+}
+.staff-options li {
+  margin: 12px 0;
+}
+.staff-options li a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease
