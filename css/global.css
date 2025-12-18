@@ -1,0 +1,6 @@
+.meme-img {
+  width: 100%;        /* ocupa todo el ancho de su contenedor */
+  height: 200px;      /* altura fija para todos los memes */
+  object-fit: cover;  /* recorta y ajusta manteniendo proporción */
+  display: block;     /* elimina espacios raros de inline */
+}
