@@ -1,114 +1,76 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Memeflix - Home</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- CSS externo -->
-  <link rel="stylesheet" href="css/home.css">
-  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-  <!-- Fondo Matrix -->
   <canvas id="matrix"></canvas>
 
-  <!-- Navbar -->
-<nav class="navbar">
-  <div class="logo">MEMEFLIX</div>
-  <ul class="nav-links">
-    <li><a href="home.html">Inicio</a></li>
-    <li><a href="memes.html">Memes</a></li>
-    <li><a href="sugerencias.html">Sugerencias</a></li>
-    <li><a href="minijuegos.html">Minijuegos</a></li>
-  </ul>
-  <div class="usuario" id="usuarioDisplay"></div>
-</nav>
-
-  <!-- Hero principal -->
-  <header class="hero">
-    <h1>Bienvenido a <span class="highlight">Memeflix</span></h1>
-    <p>Tu plataforma de memes y juegos con estilo único.</p>
-    <a href="memes.html" class="btn">Explorar memes</a>
+  <header class="navbar page-layer">
+    <div class="logo">MEMEFLIX</div>
+    <button class="menu-toggle" aria-label="Abrir menú">☰</button>
+    <nav>
+      <ul class="nav-links" role="menubar">
+        <li><a href="home.html" class="active" role="menuitem">Inicio</a></li>
+        <li><a href="memes.html" role="menuitem">Memes</a></li>
+        <li><a href="sugerencias.html" role="menuitem">Sugerencias</a></li>
+        <li><a href="minijuegos.html" role="menuitem">Minijuegos</a></li>
+      </ul>
+    </nav>
+    <div class="nav-right page-layer">
+      <div class="usuario"></div>
+      <a id="staffLink" class="btn ghost" href="STAFF/staff.html">Staff</a>
+    </div>
   </header>
 
-  <!-- Sección novedades -->
-  <section class="novedades">
-    <h2 class="section-title">🔥 Novedades</h2>
-    <div class="grid">
-      <div class="card"><img src="imagenes/elpico.jpg" alt="Meme 1" class="meme-img"></div>
-      <div class="card"><img src="imagenes/osfollareconlapoya.jpg" alt="Meme 2" class="meme-img"></div>
-      <div class="card"><img src="imagenes/serie1.jpg" alt="Meme 3" class="meme-img"></div>
-      <div class="card"><img src="imagenes/mono.jpg" alt="Meme 4" class="meme-img"></div>
-      <!-- Añade más memes según necesites -->
-    </div>
-  </section>
+  <main class="page-layer">
+    <section class="hero">
+      <div class="container">
+        <h1>Bienvenido a <span class="highlight">Memeflix</span></h1>
+        <p>Tu plataforma de memes y juegos con estilo único.</p>
+        <a class="btn" href="memes.html">Explorar memes</a>
+      </div>
+    </section>
 
-  <!-- Footer -->
-<footer>
-  <p>© 2025 Memeflix - Jaime Muñoz Nicolás</p>
-  <p><a href="STAFF/staff.html" class="staff-link" id="staffLink">Acceso Staff</a></p>
-</footer>
+    <section class="novedades container">
+      <h2 class="section-title">☒ Novedades</h2>
+      <div class="grid">
+        <article class="card"><img class="meme-img" src="imagenes/elpico.jpg" alt="Meme 1"></article>
+        <article class="card"><img class="meme-img" src="imagenes/osfollareconlapoya.jpg" alt="Meme 2"></article>
+        <article class="card"><img class="meme-img" src="imagenes/serie1.jpg" alt="Meme 3"></article>
+        <article class="card"><img class="meme-img" src="imagenes/mono.jpg" alt="Meme 4"></article>
+      </div>
+    </section>
 
-<script>
-  // Pase temporal para acceder a Staff solo desde el índice
-  document.getElementById('staffLink').addEventListener('click', () => {
-    sessionStorage.setItem('staffEntry', 'fromIndex');
-  });
-</script>
+    <footer class="page-layer">
+      <div class="container">
+        <p>© 2025 Memeflix - Jaime Muñoz Nicolás</p>
+      </div>
+    </footer>
+  </main>
 
+  <script src="js/matrix.js"></script>
+  <script src="js/main.js"></script>
   <script>
-    // Fondo Matrix
-    const canvas = document.getElementById("matrix");
-    const ctx = canvas.getContext("2d");
-    canvas.height = window.innerHeight;
-    canvas.width = window.innerWidth;
-
-    const letters = "01";
-    const fontSize = 16;
-    const columns = canvas.width / fontSize;
-    const drops = [];
-    for (let x = 0; x < columns; x++) drops[x] = 1;
-
-    function draw() {
-      ctx.fillStyle = "rgba(0,0,0,0.05)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#0F0";
-      ctx.font = fontSize + "px monospace";
-      for (let i = 0; i < drops.length; i++) {
-        const text = letters[Math.floor(Math.random() * letters.length)];
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-        drops[i]++;
+    // visitas y tiempo en sitio (mantengo tus funciones)
+    const v = (parseInt(localStorage.getItem('visitas') || '0',10) + 1);
+    localStorage.setItem('visitas', v);
+    let segundos = 0;
+    setInterval(() => {
+      segundos++;
+      if(segundos % 60 === 0){
+        const mins = parseInt(localStorage.getItem('tiempoEnSitio') || '0',10) + 1;
+        localStorage.setItem('tiempoEnSitio', mins);
       }
-    }
-    setInterval(draw, 33);
-
-    // Mostrar usuario
-    const usuario = localStorage.getItem("usuarioMemeflix");
-    if (usuario) document.getElementById("usuarioDisplay").textContent = "👤 " + usuario;
-
-    // Ajustar canvas al redimensionar
-    window.addEventListener("resize", () => {
-      canvas.height = window.innerHeight;
-      canvas.width = window.innerWidth;
-    });
+    },1000);
   </script>
-  <script>
-    const v = parseInt(localStorage.getItem("visitas") || "0", 10) + 1;
-    localStorage.setItem("visitas", v);
-  </script>
-  <script>
-  let segundos = 0;
-  setInterval(() => {
-    segundos++;
-    if (segundos % 60 === 0) {
-      const mins = parseInt(localStorage.getItem("tiempoEnSitio") || "0", 10) + 1;
-      localStorage.setItem("tiempoEnSitio", mins);
-    }
-  }, 1000);
-</script>
 </body>
 </html>
+
+
 
 
 
