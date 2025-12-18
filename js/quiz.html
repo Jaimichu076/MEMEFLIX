@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Memeflix - Quiz</title>
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/games.css" />
+  <style>
+    .quiz-shell { padding: calc(var(--nav-height) + 18px) 16px 60px; min-height:100vh; display:flex;flex-direction:column;gap:18px; align-items:center; }
+    .quiz-card { max-width:900px; width:100%; padding:18px; border-radius:12px; background:var(--glass-bg); border:1px solid var(--glass-border) }
+    .choices { display:flex;flex-direction:column;gap:10px;margin-top:12px }
+    .choice { padding:12px;border-radius:10px;background:#111;border:1px solid rgba(255,255,255,0.03);cursor:pointer }
+    .choice.correct { background:linear-gradient(90deg,#0f0a,#003300); color:#fff; }
+    .choice.wrong { background:linear-gradient(90deg,#2b0000,#4b0000); color:#fff; }
+    .timer { font-weight:800;color:var(--accent-red) }
+  </style>
+</head>
+<body>
+  <canvas id="matrix" aria-hidden="true"></canvas>
+
+  <header class="navbar page-layer" role="banner">
+    <div class="logo">MEMEFLIX</div>
+    <button class="menu-toggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
+    <nav aria-label="Menú principal">
+      <ul class="nav-links" role="menubar">
+        <li role="none"><a role="menuitem" href="../home.html">Inicio</a></li>
+        <li role="none"><a role="menuitem" href="../memes.html">Memes</a></li>
+        <li role="none"><a role="menuitem" href="../sugerencias.html">Sugerencias</a></li>
+        <li role="none"><a role="menuitem" href="../minijuegos.html" class="active">Minijuegos</a></li>
+      </ul>
+    </nav>
+    <div class="nav-right page-layer">
+      <div class="usuario" aria-live="polite"></div>
+      <a id="staffLink" class="btn ghost" href="../STAFF/staff.html">Staff</a>
+    </div>
+  </header>
+
+  <main class="page-layer quiz-shell">
+    <div class="container">
+      <div class="quiz-card" id="quizCard" role="region" aria-live="polite">
+        <header style="display:flex;justify-content:space-between;align-items:center">
+          <h2 id="questionTitle" style="margin:0">Pregunta</h2>
+          <div class="timer" id="timer">00</div>
+        </header>
+
+        <p id="questionText" style="margin-top:8px;color:var(--muted)">Texto de la pregunta</p>
+
+        <div class="choices" id="choices"></div>
+
+        <div style="display:flex;gap:8px;justify-content:space-between;margin-top:12px;align-items:center">
+          <div>
+            <button id="btnNext" class="btn" disabled>Siguiente</button>
+            <button id="btnQuit" class="btn ghost">Salir</button>
+          </div>
+          <div class="small">Puntuación: <strong id="score">0</strong></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="page-layer" style="text-align:center;padding:18px;color:var(--muted)">
+    <div class="container">© 2025 Memeflix - Jaime Muñoz Nicolás</div>
+  </footer>
+
+  <script src="../js/matrix.js"></script>
+  <script src="../js/main.js"></script>
+  <script src="../js/quiz.js"></script>
+</body>
+</html>
