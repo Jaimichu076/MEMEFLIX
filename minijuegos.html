@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Memeflix - Minijuegos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- CSS externo -->
+  <link rel="stylesheet" href="css/minijuegos.css">
+</head>
+<body>
+  <!-- Fondo Matrix -->
+  <canvas id="matrix"></canvas>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">MEMEFLIX</div>
+    <ul class="nav-links">
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="memes.html">Memes</a></li>
+      <li><a href="sugerencias.html">Sugerencias</a></li>
+      <li><a href="minijuegos.html" class="active">Minijuegos</a></li>
+    </ul>
+    <div class="usuario" id="usuarioDisplay"></div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero">
+    <h1>Juega a los <span class="highlight">Minijuegos</span></h1>
+    <p>Experiencias rápidas, fluidas y con estilo. ¡Evita los memes y gana!</p>
+  </header>
+
+  <!-- Catálogo de minijuegos -->
+  <section class="catalogo">
+    <h2 class="section-title">🎮 Elige tu juego</h2>
+    <div class="grid">
+      <a class="card" href="js/buscamemes.html">
+        <div class="card-thumb">
+          <img src="imagenes/sixseven.jpg" alt="Buscamemes">
+        </div>
+        <div class="card-body">
+          <h3>Buscamemes</h3>
+          <p>Clásico Buscaminas, pero con memes. 3 niveles y cronómetro.</p>
+        </div>
+      </a>
+
+      <!-- Ejemplos para más juegos (se activan cuando los integremos) -->
+      <a class="card disabled" href="#" title="Próximamente">
+        <div class="card-thumb">
+          <img src="imagenes/meme1.jpg" alt="Snake">
+        </div>
+        <div class="card-body">
+          <h3>Snake</h3>
+          <p>Próximamente: vibra en verde y no choques contigo.</p>
+        </div>
+      </a>
+
+      <a class="card disabled" href="#" title="Próximamente">
+        <div class="card-thumb">
+          <img src="imagenes/meme2.jpg" alt="Clicker">
+        </div>
+        <div class="card-body">
+          <h3>Clicker</h3>
+          <p>Próximamente: clics, upgrades y récord.</p>
+        </div>
+      </a>
+
+      <a class="card disabled" href="#" title="Próximamente">
+        <div class="card-thumb">
+          <img src="imagenes/meme3.jpg" alt="Memoria">
+        </div>
+        <div class="card-body">
+          <h3>Memoria</h3>
+          <p>Próximamente: encuentra parejas de memes.</p>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>© 2025 Memeflix - Jaime Muñoz Nicolás</p>
+  </footer>
+
+  <script>
+    // Fondo Matrix
+    const canvas = document.getElementById("matrix");
+    const ctx = canvas.getContext("2d");
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+
+    const letters = "01";
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = [];
+    for (let x = 0; x < columns; x++) drops[x] = 1;
+
+    function draw() {
+      ctx.fillStyle = "rgba(0,0,0,0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#0F0";
+      ctx.font = fontSize + "px monospace";
+      for (let i = 0; i < drops.length; i++) {
+        const text = letters[Math.floor(Math.random() * letters.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+    }
+    setInterval(draw, 33);
+
+    // Mostrar usuario
+    const usuario = localStorage.getItem("usuarioMemeflix");
+    if (usuario) document.getElementById("usuarioDisplay").textContent = "👤 " + usuario;
+
+    // Ajustar canvas al redimensionar
+    window.addEventListener("resize", () => {
+      canvas.height = window.innerHeight;
+      canvas.width = window.innerWidth;
+    });
+  </script>
+</body>
+</html>

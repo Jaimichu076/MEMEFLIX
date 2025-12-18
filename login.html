@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Login Memeflix</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Enlace al CSS externo -->
+  <link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+  <!-- Fondo Matrix -->
+  <canvas id="matrix"></canvas>
+
+  <!-- Caja de login -->
+  <div id="loginBox">
+    <h2>Inicia sesión en Memeflix</h2>
+    <form id="loginForm">
+      <input type="text" id="usuario" placeholder="Usuario" required>
+      <input type="password" id="password" placeholder="Contraseña" required>
+      <button type="submit">Entrar</button>
+    </form>
+  </div>
+
+  <script>
+    // Fondo Matrix con binario cayendo
+    const canvas = document.getElementById("matrix");
+    const ctx = canvas.getContext("2d");
+
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+
+    const letters = "01";
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = [];
+
+    for (let x = 0; x < columns; x++) {
+      drops[x] = 1;
+    }
+
+    function draw() {
+      ctx.fillStyle = "rgba(0,0,0,0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "#0F0"; // verde Matrix
+      ctx.font = fontSize + "px monospace";
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = letters[Math.floor(Math.random() * letters.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+
+    setInterval(draw, 33);
+
+    // Login
+    document.getElementById("loginForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const usuario = document.getElementById("usuario").value.trim();
+      const password = document.getElementById("password").value.trim();
+      if (!usuario || !password) return;
+      localStorage.setItem("usuarioMemeflix", usuario);
+      window.location.href = "index.html"; // redirige al index
+    });
+
+    // Ajustar canvas al redimensionar
+    window.addEventListener("resize", () => {
+      canvas.height = window.innerHeight;
+      canvas.width = window.innerWidth;
+    });
+  </script>
+</body>
+</html>
