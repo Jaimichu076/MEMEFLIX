@@ -1,47 +1,32 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <title>Buscamemes</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- CSS: si usas main.css unificado, mantenlo; si tienes buscamemes.css específico, se carga aquí -->
   <link rel="stylesheet" href="../css/main.css" />
-  <style>
-    /* Asegura que la imagen de mina se vea bien */
-    #tablero { display:grid; gap:0; padding:6px; border-radius:10px; }
-    .celda { width:var(--cell-size); height:var(--cell-size); background:#1b1b1b; color:#fff; border:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; user-select:none; cursor:pointer; font-weight:800; font-family:monospace }
-    .celda.revelada { background:#2f2f2f; cursor:default }
-    .celda.meme { background-size:cover; background-position:center; }
-    .estado { min-height:32px; text-align:center; color:var(--muted); font-weight:700; margin-top:8px }
-    .hud { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin:12px 0 }
-    .hud-item { background:var(--glass-bg); border:1px solid var(--glass-border); padding:10px 12px; border-radius:10px }
-    .controles { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin:12px 0 }
-    .btn { cursor:pointer }
-  </style>
+  <link rel="stylesheet" href="../css/buscamemes.css" />
 </head>
 <body>
-  <!-- Fondo Matrix -->
   <canvas id="matrix"></canvas>
 
-  <!-- Navbar (ajustada a tu carpeta js/) -->
   <nav class="navbar">
     <div class="logo">MEMEFLIX</div>
     <ul class="nav-links">
-      <li><a href="./home.html">Inicio</a></li>
-      <li><a href="./memes.html">Memes</a></li>
-      <li><a href="./sugerencias.html">Sugerencias</a></li>
-      <li><a href="./minijuegos.html" class="active">Minijuegos</a></li>
+      <li><a href="home.html">Inicio</a></li>
+      <li><a href="memes.html">Memes</a></li>
+      <li><a href="sugerencias.html">Sugerencias</a></li>
+      <li><a href="minijuegos.html" class="active">Minijuegos</a></li>
     </ul>
     <div class="usuario" id="usuarioDisplay"></div>
+    <a class="btn ghost" href="../STAFF/staff.html">Staff</a>
   </nav>
 
-  <!-- Encabezado del juego -->
   <header class="hero hero-game">
     <h1>Buscamemes</h1>
     <p>Evita los memes ocultos. Tres niveles, primer clic seguro y cronómetro.</p>
   </header>
 
-  <!-- HUD + Controles -->
   <section class="hud">
     <div class="hud-item"><span class="label">Tiempo:</span> <span id="timer">00:00</span></div>
     <div class="hud-item"><span class="label">Seguras restantes:</span> <span id="safeLeft">—</span></div>
@@ -53,71 +38,37 @@
     <button id="btnIntermedio" class="btn warning" onclick="iniciarJuego('intermedio')">Intermedio</button>
     <button id="btnSix" class="btn danger" onclick="iniciarJuego('sixseveeeen')">Six Seveeeen</button>
     <button id="btnReiniciar" class="btn outline" onclick="reiniciarNivel()" disabled>Reiniciar nivel</button>
-    <a href="./minijuegos.html" class="btn secondary">⬅ Volver al menú</a>
+    <a href="minijuegos.html" class="btn secondary">⬅ Volver al menú</a>
   </section>
 
-  <!-- Tablero -->
   <section class="tablero-wrap">
     <div id="tablero" role="grid" aria-label="Tablero Buscamemes" tabindex="0"></div>
     <div id="estado" class="estado">Selecciona un nivel para comenzar.</div>
   </section>
 
-  <!-- Footer -->
   <footer>
     <p>© 2025 Memeflix - Jaime Muñoz Nicolás</p>
   </footer>
 
-  <!-- Juego (usa exactamente el nombre real de archivo) -->
-  <script src="buscamemes.js"></script>
-
-  <!-- Mejoras de interacción -->
+  <script src="buscameemes.js"></script>
+  <script src="matrix.js"></script>
   <script>
-    // Usuario en navbar
     const usuario = localStorage.getItem("usuarioMemeflix");
     if (usuario) document.getElementById("usuarioDisplay").textContent = "👤 " + usuario;
 
-    // Toque largo para bandera en móvil y evitar menú contextual
-    (function(){
-      const board = document.getElementById("tablero");
-      let tTimer = null;
-      board.addEventListener("touchstart", e => {
-        const t = e.target.closest(".celda");
-        if(!t) return;
-        tTimer = setTimeout(() => {
-          t.dispatchEvent(new Event("contextmenu", { bubbles:true, cancelable:true }));
-          tTimer = null;
-        }, 500);
-      }, { passive: true });
-      board.addEventListener("touchend", e => {
-        if(tTimer){
-          clearTimeout(tTimer);
-          tTimer = null;
-          const t = e.target.closest(".celda");
-          if(t) t.click();
-        }
-      }, { passive: true });
-      document.addEventListener("contextmenu", e => {
-        if(e.target.closest("#tablero")) e.preventDefault();
-      });
-      // Teclado: Enter revela, Space bandera
-      board.addEventListener("keydown", e => {
-        const f = document.activeElement;
-        if(!f || !f.classList.contains("celda")) return;
-        if(e.key === "Enter") f.click();
-        if(e.key === " ") { e.preventDefault(); f.dispatchEvent(new Event("contextmenu", { bubbles:true, cancelable:true })); }
-      });
-    })();
-
-    // Matrix background (tu versión original)
+    // Fondo Matrix responsivo
     const canvas = document.getElementById("matrix");
     const ctx = canvas.getContext("2d");
-    function resizeMatrix(){ canvas.height = window.innerHeight; canvas.width = window.innerWidth; }
+    function resizeMatrix() {
+      canvas.height = window.innerHeight;
+      canvas.width = window.innerWidth;
+    }
     resizeMatrix();
     const letters = "01";
     const fontSize = 16;
     let columns = Math.floor(canvas.width / fontSize);
     const drops = new Array(columns).fill(1);
-    function draw() {
+    function drawMatrix() {
       ctx.fillStyle = "rgba(0,0,0,0.05)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "#0F0";
@@ -129,13 +80,46 @@
         drops[i]++;
       }
     }
-    setInterval(draw, 33);
+    setInterval(drawMatrix, 33);
     window.addEventListener("resize", () => {
       resizeMatrix();
       columns = Math.floor(canvas.width / fontSize);
-      drops.length = columns; drops.fill(1);
+      drops.length = columns;
+      drops.fill(1);
+    });
+
+    // Accesibilidad: teclado y móvil
+    const tablero = document.getElementById("tablero");
+    tablero.addEventListener("keydown", e => {
+      const f = document.activeElement;
+      if (!f || !f.classList.contains("celda")) return;
+      if (e.key === "Enter") f.click();
+      if (e.key === " ") {
+        e.preventDefault();
+        f.dispatchEvent(new Event("contextmenu", { bubbles: true, cancelable: true }));
+      }
+    });
+    tablero.addEventListener("touchstart", e => {
+      const t = e.target.closest(".celda");
+      if (!t) return;
+      t.dataset.touchStart = Date.now();
+    }, { passive: true });
+    tablero.addEventListener("touchend", e => {
+      const t = e.target.closest(".celda");
+      if (!t || !t.dataset.touchStart) return;
+      const duration = Date.now() - parseInt(t.dataset.touchStart, 10);
+      delete t.dataset.touchStart;
+      if (duration > 400) {
+        t.dispatchEvent(new Event("contextmenu", { bubbles: true, cancelable: true }));
+      } else {
+        t.click();
+      }
+    });
+    document.addEventListener("contextmenu", e => {
+      if (e.target.closest("#tablero")) e.preventDefault();
     });
   </script>
 </body>
 </html>
+
 
