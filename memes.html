@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- CSS externo -->
   <link rel="stylesheet" href="css/memes.css">
+  <link rel="stylesheet" href="css/global.css"> <!-- clase .meme-img -->
 </head>
 <body>
   <!-- Fondo Matrix -->
@@ -33,11 +34,22 @@
   <section class="galeria">
     <h2 class="section-title">📸 Galería de Memes</h2>
     <div class="grid">
-      <div class="card"><img src="imagenes/meme1.jpg" alt="Meme 1"></div>
-      <div class="card"><img src="imagenes/meme2.jpg" alt="Meme 2"></div>
-      <div class="card"><img src="imagenes/meme3.jpg" alt="Meme 3"></div>
-      <div class="card"><img src="imagenes/meme4.jpg" alt="Meme 4"></div>
-      <!-- Añade más memes según necesites -->
+      <div class="card">
+        <img src="imagenes/meme1.jpg" alt="Meme 1" class="meme-img">
+        <h3 class="meme-title">Meme 1: El clásico</h3>
+      </div>
+      <div class="card">
+        <img src="imagenes/meme2.jpg" alt="Meme 2" class="meme-img">
+        <h3 class="meme-title">Meme 2: El inesperado</h3>
+      </div>
+      <div class="card">
+        <img src="imagenes/meme3.jpg" alt="Meme 3" class="meme-img">
+        <h3 class="meme-title">Meme 3: El viral</h3>
+      </div>
+      <div class="card">
+        <img src="imagenes/meme4.jpg" alt="Meme 4" class="meme-img">
+        <h3 class="meme-title">Meme 4: El legendario</h3>
+      </div>
     </div>
   </section>
 
@@ -52,13 +64,11 @@
     const ctx = canvas.getContext("2d");
     canvas.height = window.innerHeight;
     canvas.width = window.innerWidth;
-
     const letters = "01";
     const fontSize = 16;
     const columns = canvas.width / fontSize;
     const drops = [];
     for (let x = 0; x < columns; x++) drops[x] = 1;
-
     function draw() {
       ctx.fillStyle = "rgba(0,0,0,0.05)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -81,6 +91,11 @@
     window.addEventListener("resize", () => {
       canvas.height = window.innerHeight;
       canvas.width = window.innerWidth;
+    });
+
+    // Pase Staff
+    document.getElementById('staffLink').addEventListener('click', () => {
+      sessionStorage.setItem('staffEntry', 'fromIndex');
     });
   </script>
 </body>
