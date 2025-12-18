@@ -94,6 +94,13 @@
       document.getElementById("sugerenciasForm").reset();
     });
   </script>
+  <script>
+  function enviarSugerencia() {
+    const v = parseInt(localStorage.getItem("sugerenciasEnviadas") || "0", 10) + 1;
+    localStorage.setItem("sugerenciasEnviadas", v);
+  }
+</script>
 </body>
 </html>
+
 
