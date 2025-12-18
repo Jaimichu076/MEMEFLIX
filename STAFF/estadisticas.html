@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Memeflix - Estadísticas</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <style>
+    /* Estilos específicos para Estadísticas */
+    .stats-shell { padding: calc(var(--nav-height) + 20px) 16px 60px; min-height:100vh; }
+    .stats-header { max-width:var(--max-width); margin:0 auto 18px; text-align:center }
+    .stats-header h1 { color:var(--accent-red); margin:0 0 6px }
+    .stats-main { max-width:var(--max-width); margin:0 auto; display:grid; gap:18px; grid-template-columns:1fr; }
+    .stats-grid { display:grid; gap:18px; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); }
+    .stat-card { padding:18px; border-radius:12px; background:var(--glass-bg); border:1px solid var(--glass-border); color:var(--text) }
+    .stat-number { font-size:2rem; color:var(--accent-red); font-weight:800; margin-top:6px }
+    .charts { padding:18px; border-radius:12px; background:var(--glass-bg); border:1px solid var(--glass-border) }
+    .chart-bar { display:flex; align-items:flex-end; gap:12px; height:220px; padding:12px 6px; }
+    .bar { width:36px; height:0; border-radius:6px 6px 0 0; background:linear-gradient(180deg,#00ff95,#e50914); transition:height 700ms ease, box-shadow 300ms }
+    .bar.on { box-shadow:0 8px 24px rgba(229,9,20,0.18) }
+    .bar span { display:block; text-align:center; margin-top:8px; color:var(--muted); font-size:0.85rem }
+    .ranking { padding:18px; border-radius:12px; background:var(--glass-bg); border:1px solid var(--glass-border) }
+    .ranking ol { margin:0; padding-left:18px; color:var(--muted) }
+    @media(min-width:900px){ .stats-main { grid-template-columns: 2fr 1fr } }
+  </style>
+</head>
+<body>
+  <canvas id="matrix" aria-hidden="true"></canvas>
+
+  <header class="navbar page-layer" role="banner">
+    <div class="logo">MEMEFLIX</div>
+    <button class="menu-toggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
+    <nav aria-label="Menú principal">
+      <ul class="nav-links" role="menubar">
+        <li role="none"><a role="menuitem" href="../home.html">Inicio</a></li>
+        <li role="none"><a role="menuitem" href="../memes.html">Memes</a></li>
+        <li role="none"><a role="menuitem" href="../sugerencias.html">Sugerencias</a></li>
+        <li role="none"><a role="menuitem" href="../minijuegos.html">Minijuegos</a></li>
+        <li role="none"><a role="menuitem" href="staff.html">Staff</a></li>
+        <li role="none"><a role="menuitem" href="estadisticas.html" class="active">Estadísticas</a></li>
+      </ul>
+    </nav>
+    <div class="nav-right page-layer">
+      <div class="usuario" aria-live="polite"></div>
+    </div>
+  </header>
+
+  <main class="page-layer stats-shell">
+    <header class="stats-header">
+      <h1>Estadísticas en tiempo real</h1>
+      <p class="hint">Panel técnico de Memeflix. Datos tomados desde localStorage para demo.</p>
+    </header>
+
+    <div class="stats-main container">
+      <section>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <h3>Usuarios activos</h3>
+            <div class="stat-number" data-key="usuariosActivos">0</div>
+            <div class="stat-desc">Últimas 24h (aprox.)</div>
+          </div>
+
+          <div class="stat-card">
+            <h3>Visitas</h3>
+            <div class="stat-number" data-key="visitas">0</div>
+            <div class="stat-desc">Sesiones totales</div>
+          </div>
+
+          <div class="stat-card">
+            <h3>Memes vistos</h3>
+            <div class="stat-number" data-key="memes Vistos">0</div>
+            <div class="stat-desc">Impresiones de tarjetas</div>
+          </div>
+
+          <div class="stat-card">
+            <h3>Minijuegos jugados</h3>
+            <div class="stat-number" data-key="minijuegosJugados">0</div>
+            <div class="stat-desc">Partidas totales</div>
+          </div>
+
+          <div class="stat-card">
+            <h3>Sugerencias enviadas</h3>
+            <div class="stat-number" data-key="sugerenciasEnviadas">0</div>
+            <div class="stat-desc">Entradas en el buzón</div>
+          </div>
+
+          <div class="stat-card">
+            <h3>Tiempo en sitio</h3>
+            <div class="stat-number" data-key="tiempoEnSitio">0</div>
+            <div class="stat-desc">Minutos acumulados</div>
+          </div>
+        </div>
+
+        <div class="charts" style="margin-top:18px">
+          <h3>Actividad semanal</h3>
+          <div class="chart-bar" id="chartSemanal" aria-hidden="false"></div>
+        </div>
+      </section>
+
+      <aside>
+        <div class="ranking">
+          <h3>Top usuarios</h3>
+          <ol id="topUsuarios"></ol>
+        </div>
+
+        <div style="height:18px"></div>
+
+        <div class="ranking">
+          <h3>Controles</h3>
+          <p style="color:var(--muted);font-size:0.95rem">Puedes reiniciar contadores de demo desde aquí.</p>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button id="btnResetCounters" class="btn ghost">Reiniciar contadores</button>
+            <button id="btnExport" class="btn" disabled>Exportar (no disponible)</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <footer style="margin-top:18px;text-align:center;color:var(--muted)">
+      <p>Memeflix · Panel de estadísticas · © 2025</p>
+    </footer>
+  </main>
+
+  <script src="../js/matrix.js"></script>
+  <script src="../js/main.js"></script>
+
+  <script>
+    // Estadísticas: lectura segura y renderizado
+    (function(){
+      // Utilidades
+      function getNum(key, def = 0){
+        const v = localStorage.getItem(key);
+        const n = parseInt(v, 10);
+        return isNaN(n) ? def : n;
+      }
+
+      function contarUsuariosActivos(){
+        try {
+          const raw = localStorage.getItem('usuariosSet');
+          if(!raw) return 1;
+          const arr = JSON.parse(raw);
+          return Array.isArray(arr) ? Math.max(1, arr.length) : 1;
+        } catch { return 1; }
+      }
+
+      // Valores a mostrar (claves coincidentes con el resto del proyecto)
+      const valores = {
+        usuariosActivos: contarUsuariosActivos(),
+        visitas: getNum('visitas'),
+        'memes Vistos': getNum('memes Vistos'),
+        minijuegosJugados: getNum('minijuegosJugados'),
+        sugerenciasEnviadas: getNum('sugerenciasEnviadas'),
+        tiempoEnSitio: getNum('tiempoEnSitio')
+      };
+
+      // Animar contadores
+      function animateCounter(el, target, duration = 900){
+        const start = 0;
+        const startTime = performance.now();
+        function tick(now){
+          const p = Math.min((now - startTime) / duration, 1);
+          const val = Math.floor(start + (target - start) * p);
+          el.textContent = val.toLocaleString('es-ES');
+          if(p < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      }
+
+      document.querySelectorAll('.stat-number').forEach(el => {
+        const key = el.getAttribute('data-key');
+        const target = valores[key] ?? 0;
+        animateCounter(el, target);
+      });
+
+      // Gráfico semanal
+      function getSemanal(){
+        try {
+          const raw = localStorage.getItem('actividadSemanal');
+          if(!raw) return [80,60,90,50,70,40,30];
+          const arr = JSON.parse(raw);
+          return Array.isArray(arr) && arr.length === 7 ? arr : [80,60,90,50,70,40,30];
+        } catch { return [80,60,90,50,70,40,30]; }
+      }
+
+      const dias = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+      const data = getSemanal();
+      const chart = document.getElementById('chartSemanal');
+
+      data.forEach((val, i) => {
+        const barWrap = document.createElement('div');
+        barWrap.style.display = 'flex';
+        barWrap.style.flexDirection = 'column';
+        barWrap.style.alignItems = 'center';
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        const altura = Math.max(6, Math.min(100, Number(val) || 0));
+        bar.style.height = '6px'; // inicio pequeño para animar
+        const label = document.createElement('span');
+        label.textContent = dias[i];
+        barWrap.appendChild(bar);
+        barWrap.appendChild(label);
+        chart.appendChild(barWrap);
+        // animación diferida
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            bar.style.height = altura + '%';
+            bar.classList.add('on');
+          }, i * 120);
+        });
+      });
+
+      // Top usuarios
+      function getTopUsuarios(){
+        try {
+          const raw = localStorage.getItem('topUsuarios');
+          if(!raw) return [
+            { nombre: "Jaime", memes: 320 },
+            { nombre: "Laura", memes: 280 },
+            { nombre: "Carlos", memes: 250 },
+            { nombre: "Ana", memes: 200 }
+          ];
+          const arr = JSON.parse(raw);
+          return Array.isArray(arr) ? arr : [];
+        } catch { return []; }
+      }
+
+      const top = getTopUsuarios().slice(0,10).sort((a,b) => (b.memes || 0) - (a.memes || 0));
+      const ol = document.getElementById('topUsuarios');
+      if(top.length === 0) ol.innerHTML = '<li>No hay datos suficientes</li>';
+      else ol.innerHTML = top.map(u => `<li>${String(u.nombre)} - ${Number(u.memes || 0).toLocaleString('es-ES')} memes</li>`).join('');
+
+      // Botones de control
+      document.getElementById('btnResetCounters').addEventListener('click', () => {
+        if(!confirm('¿Reiniciar contadores de demo en localStorage?')) return;
+        const keys = ['visitas','memes Vistos','minijuegosJugados','sugerenciasEnviadas','tiempoEnSitio','actividadSemanal','topUsuarios','usuariosSet'];
+        keys.forEach(k => localStorage.removeItem(k));
+        location.reload();
+      });
+
+      // Mostrar usuario en header
+      const usuario = localStorage.getItem('usuarioMemeflix');
+      document.querySelectorAll('.usuario').forEach(el => el.textContent = usuario ? ` _ ${usuario}` : 'Invitado');
+
+    })();
+  </script>
+</body>
+</html>
+
