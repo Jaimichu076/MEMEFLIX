@@ -93,8 +93,13 @@
       canvas.width = window.innerWidth;
     });
   </script>
+  <script>
+    const v = parseInt(localStorage.getItem("visitas") || "0", 10) + 1;
+    localStorage.setItem("visitas", v);
+  </script>
 </body>
 </html>
+
 
 
 
