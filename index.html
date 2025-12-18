@@ -1,13 +1,100 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Memeflix - Redirección</title>
-  <script>
-    // Cambia "intro.html" por el archivo al que quieras redirigir
-    window.location.href = "intro.html";
-  </script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Memeflix — Inicio</title>
+  <meta name="description" content="Memeflix — plataforma de memes y minijuegos. Redirigiendo..." />
+  <!-- Fallback para navegadores sin JavaScript: redirige a intro -->
+  <noscript>
+    <meta http-equiv="refresh" content="0;url=intro.html">
+  </noscript>
+  <style>
+    :root{
+      --bg:#000;
+      --text:#fff;
+      --accent:#e50914;
+      --muted:#cfcfcf;
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    }
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+    .wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;gap:18px;text-align:center}
+    .logo{font-weight:800;color:#0f0;text-shadow:0 0 8px #0f0;letter-spacing:1px;font-size:1.6rem}
+    .card{background:rgba(17,17,17,0.6);border:1px solid rgba(229,9,20,0.12);padding:18px;border-radius:12px;max-width:720px;width:100%}
+    .btn{display:inline-block;padding:10px 14px;border-radius:10px;background:var(--accent);color:#fff;font-weight:700;text-decoration:none;border:0;cursor:pointer}
+    .btn.ghost{background:transparent;border:1px solid #0f0;color:#0f0}
+    .muted{color:var(--muted);font-size:0.95rem}
+    .actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+    .small{font-size:0.9rem;color:var(--muted)}
+  </style>
 </head>
 <body>
+  <div class="wrap" role="main" aria-live="polite">
+    <div class="logo">MEMEFLIX</div>
+
+    <div class="card" id="card">
+      <h1 style="margin:0 0 8px">Redirigiendo</h1>
+      <p class="muted" id="message">Preparando la experiencia Memeflix…</p>
+
+      <div class="actions" id="actions" style="display:none">
+        <button id="goIntro" class="btn">Ver intro</button>
+        <button id="goHome" class="btn ghost">Ir al Home</button>
+        <button id="skipRemember" class="btn" title="Saltar intro y recordar">Saltar y recordar</button>
+      </div>
+
+      <p class="small" style="margin-top:12px">Si no se redirige automáticamente, usa los botones de arriba.</p>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      // Lógica de redirección inteligente:
+      // - Si el usuario ya inició sesión (usuarioMemeflix) o marcó "skipIntro", ir a home.html
+      // - Si no, ir a intro.html
+      // - Ofrecemos controles para elegir manualmente y recordar la preferencia
+      const message = document.getElementById('message');
+      const actions = document.getElementById('actions');
+      const goIntro = document.getElementById('goIntro');
+      const goHome = document.getElementById('goHome');
+      const skipRemember = document.getElementById('skipRemember');
+
+      const usuario = localStorage.getItem('usuarioMemeflix');
+      const skipIntro = localStorage.getItem('skipIntro') === 'true';
+
+      // Mostrar acciones al usuario para control manual
+      actions.style.display = 'flex';
+
+      function redirectTo(url){
+        // pequeña animación de texto antes de redirigir
+        message.textContent = 'Redirigiendo…';
+        setTimeout(() => { window.location.href = url; }, 250);
+      }
+
+      // Si el usuario ya está logueado o marcó saltar, vamos al home
+      if(usuario || skipIntro){
+        message.textContent = usuario ? `Bienvenido ${usuario}. Te llevamos al Home.` : 'Has elegido saltar la intro. Te llevamos al Home.';
+        // redirigir automáticamente tras breve retardo
+        setTimeout(() => redirectTo('home.html'), 700);
+      } else {
+        // Si no hay usuario ni preferencia, ir a intro por defecto
+        message.textContent = 'Mostrando la intro la primera vez. Puedes saltarla si lo prefieres.';
+        setTimeout(() => redirectTo('intro.html'), 1200);
+      }
+
+      // Botones de control
+      goIntro.addEventListener('click', () => redirectTo('intro.html'));
+      goHome.addEventListener('click', () => redirectTo('home.html'));
+      skipRemember.addEventListener('click', () => {
+        localStorage.setItem('skipIntro', 'true');
+        message.textContent = 'Preferencia guardada. Redirigiendo al Home.';
+        setTimeout(() => redirectTo('home.html'), 500);
+      });
+
+      // Accesibilidad: permitir teclado para activar botones
+      [goIntro, goHome, skipRemember].forEach(btn => btn.addEventListener('keyup', e => {
+        if(e.key === 'Enter' || e.key === ' ') btn.click();
+      }));
+    })();
+  </script>
 </body>
 </html>
