@@ -1,0 +1,143 @@
+/* Fondo Matrix */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  color: #fff;
+  overflow-x: hidden;
+}
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  background: black;
+}
+
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(20,20,20,0.85);
+  padding: 15px 30px;
+  box-shadow: 0 0 15px rgba(0,255,0,0.4);
+}
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #e50914;
+  text-shadow: 0 0 10px #e50914;
+}
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+}
+.nav-links li a {
+  color: #fff;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+.nav-links li a:hover,
+.nav-links li a.active {
+  color: #e50914;
+}
+.usuario {
+  font-size: 1rem;
+  color: #0f0;
+}
+
+/* Hero */
+.hero {
+  text-align: center;
+  padding: 80px 20px;
+  background: rgba(0,0,0,0.6);
+  animation: fadeIn 1.5s ease forwards;
+}
+.hero h1 {
+  font-size: 2.2rem;
+  margin-bottom: 20px;
+}
+.hero .highlight {
+  color: #e50914;
+  text-shadow: 0 0 10px #e50914;
+}
+.hero p {
+  font-size: 1.1rem;
+  margin-bottom: 30px;
+}
+
+/* Formulario de sugerencias */
+.sugerencias {
+  padding: 50px 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+.section-title {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  color: #e50914;
+  text-align: center;
+}
+#sugerenciasForm {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+#sugerenciasForm input,
+#sugerenciasForm textarea {
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  background: #1c1c1c;
+  color: #fff;
+  font-size: 1rem;
+  transition: background 0.3s ease;
+}
+#sugerenciasForm input:focus,
+#sugerenciasForm textarea:focus {
+  background: #333;
+  outline: none;
+}
+#sugerenciasForm textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+#sugerenciasForm button {
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  background: #e50914;
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+#sugerenciasForm button:hover {
+  background: #b20710;
+  transform: scale(1.05);
+}
+#respuesta {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 1.1rem;
+  color: #0f0;
+  font-weight: bold;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 20px;
+  background: rgba(20,20,20,0.85);
+  box-shadow: 0 -5px 15px rgba(0,255,0,0.4);
+  margin-top: 50px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
