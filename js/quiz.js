@@ -33,3 +33,4 @@ function responder(i) {
 
 window.onload = mostrarPregunta;
 
+
