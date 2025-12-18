@@ -118,6 +118,13 @@
       canvas.width = window.innerWidth;
     });
   </script>
+  <script>
+  function partidaTerminada() {
+    const v = parseInt(localStorage.getItem("minijuegosJugados") || "0", 10) + 1;
+    localStorage.setItem("minijuegosJugados", v);
+  }
+</script>
 </body>
 </html>
+
 
