@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Buscamemes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- CSS específico del juego -->
+  <link rel="stylesheet" href="../css/buscamemes.css">
+</head>
+<body>
+  <!-- Fondo Matrix -->
+  <canvas id="matrix"></canvas>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">MEMEFLIX</div>
+    <ul class="nav-links">
+      <li><a href="../index.html">Inicio</a></li>
+      <li><a href="../memes.html">Memes</a></li>
+      <li><a href="../sugerencias.html">Sugerencias</a></li>
+      <li><a href="../minijuegos.html" class="active">Minijuegos</a></li>
+    </ul>
+    <div class="usuario" id="usuarioDisplay"></div>
+  </nav>
+
+  <!-- Encabezado del juego -->
+  <header class="hero hero-game">
+    <h1>Buscamemes</h1>
+    <p>Evita los memes ocultos. Tres niveles, primer clic seguro y cronómetro.</p>
+  </header>
+
+  <!-- HUD + Controles -->
+  <section class="hud">
+    <div class="hud-item"><span class="label">Tiempo:</span> <span id="timer">00:00</span></div>
+    <div class="hud-item"><span class="label">Seguras restantes:</span> <span id="safeLeft">—</span></div>
+    <div class="hud-item"><span class="label">Nivel:</span> <span id="nivelActual">—</span></div>
+  </section>
+
+  <section class="controles">
+    <button id="btnFacil" class="btn success" onclick="iniciarJuego('facil')">Fácil</button>
+    <button id="btnIntermedio" class="btn warning" onclick="iniciarJuego('intermedio')">Intermedio</button>
+    <button id="btnSix" class="btn danger" onclick="iniciarJuego('sixseveeeen')">Six Seveeeen</button>
+    <button id="btnReiniciar" class="btn outline" onclick="reiniciarNivel()" disabled>Reiniciar nivel</button>
+    <a href="../minijuegos.html" class="btn secondary">⬅ Volver al menú</a>
+  </section>
+
+  <!-- Tablero -->
+  <section class="tablero-wrap">
+    <div id="tablero"></div>
+    <div id="estado" class="estado"></div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>© 2025 Memeflix - Jaime Muñoz Nicolás</p>
+  </footer>
+
+  <!-- Juego -->
+  <script src="buscamemes.js"></script>
+
+  <!-- Matrix bg script -->
+  <script>
+    const canvas = document.getElementById("matrix");
+    const ctx = canvas.getContext("2d");
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+
+    const letters = "01";
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = [];
+    for (let x = 0; x < columns; x++) drops[x] = 1;
+
+    function draw() {
+      ctx.fillStyle = "rgba(0,0,0,0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#0F0";
+      ctx.font = fontSize + "px monospace";
+      for (let i = 0; i < drops.length; i++) {
+        const text = letters[Math.floor(Math.random() * letters.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+    }
+    setInterval(draw, 33);
+
+    const usuario = localStorage.getItem("usuarioMemeflix");
+    if (usuario) document.getElementById("usuarioDisplay").textContent = "👤 " + usuario;
+
+    window.addEventListener("resize", () => {
+      canvas.height = window.innerHeight;
+      canvas.width = window.innerWidth;
+    });
+  </script>
+</body>
+</html>
