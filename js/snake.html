@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Memeflix - Snake</title>
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/games.css" />
+  <style>
+    /* Pequeños ajustes locales para esta página */
+    .snake-shell { padding: calc(var(--nav-height) + 18px) 16px 60px; min-height:100vh; display:flex;flex-direction:column;gap:18px; align-items:center; }
+    .snake-header { text-align:center; margin-bottom:6px }
+    #gameCanvas { background: linear-gradient(180deg,#0b0b0b,#111); border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,0.6); touch-action: none; }
+  </style>
+</head>
+<body>
+  <canvas id="matrix" aria-hidden="true"></canvas>
+
+  <header class="navbar page-layer" role="banner">
+    <div class="logo">MEMEFLIX</div>
+    <button class="menu-toggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
+    <nav aria-label="Menú principal">
+      <ul class="nav-links" role="menubar">
+        <li role="none"><a role="menuitem" href="../home.html">Inicio</a></li>
+        <li role="none"><a role="menuitem" href="../memes.html">Memes</a></li>
+        <li role="none"><a role="menuitem" href="../sugerencias.html">Sugerencias</a></li>
+        <li role="none"><a role="menuitem" href="../minijuegos.html" class="active">Minijuegos</a></li>
+      </ul>
+    </nav>
+    <div class="nav-right page-layer">
+      <div class="usuario" aria-live="polite"></div>
+      <a id="staffLink" class="btn ghost" href="../STAFF/staff.html">Staff</a>
+    </div>
+  </header>
+
+  <main class="page-layer snake-shell">
+    <div class="container" style="max-width:1100px;width:100%">
+      <header class="snake-header">
+        <h1 style="margin:0">Snake <span class="highlight">Memeflix</span></h1>
+        <p style="margin:6px 0;color:var(--muted)">Controles: flechas / WASD; en móvil desliza o usa los botones.</p>
+      </header>
+
+      <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start;justify-content:center">
+        <section style="flex:1 1 520px;display:flex;flex-direction:column;align-items:center;gap:12px">
+          <canvas id="gameCanvas" width="560" height="560" role="application" aria-label="Tablero Snake"></canvas>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center">
+            <button id="btnStart" class="btn">Iniciar</button>
+            <button id="btnPause" class="btn ghost">Pausa</button>
+            <button id="btnRestart" class="btn">Reiniciar</button>
+            <label class="small" style="margin-left:8px">Velocidad</label>
+            <input id="speedRange" type="range" min="4" max="18" value="10" />
+          </div>
+          <div style="display:flex;gap:12px;align-items:center;justify-content:center;margin-top:6px">
+            <div class="hud stat">Puntos <div id="score" style="font-weight:800;color:var(--accent-red)">0</div></div>
+            <div class="hud stat">Mejor <div id="best" style="font-weight:800;color:var(--matrix-green)">0</div></div>
+            <div class="hud stat">Nivel <div id="level" style="font-weight:800;color:var(--muted)">1</div></div>
+          </div>
+        </section>
+
+        <aside style="width:320px;max-width:100%;display:flex;flex-direction:column;gap:12px">
+          <div class="card glass">
+            <h3 style="margin:0 0 8px;color:var(--accent-red)">Controles táctiles</h3>
+            <p class="small" style="margin:0">Desliza en el canvas para mover la serpiente. Mantén pulsado para pausar temporalmente.</p>
+          </div>
+
+          <div class="card glass">
+            <h3 style="margin:0 0 8px;color:var(--accent-red)">Skins</h3>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn small ghost" data-skin="classic">Clásico</button>
+              <button class="btn small ghost" data-skin="neon">Neón</button>
+              <button class="btn small ghost" data-skin="meme">Meme</button>
+            </div>
+          </div>
+
+          <div class="card glass">
+            <h3 style="margin:0 0 8px;color:var(--accent-red)">Notas</h3>
+            <p class="small" style="margin:0">El progreso y la mejor puntuación se guardan localmente. Juega en móvil o escritorio.</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="page-layer" style="text-align:center;padding:18px;color:var(--muted)">
+    <div class="container">© 2025 Memeflix - Jaime Muñoz Nicolás</div>
+  </footer>
+
+  <script src="../js/matrix.js"></script>
+  <script src="../js/main.js"></script>
+  <script src="../js/snake.js"></script>
+</body>
+</html>
