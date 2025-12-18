@@ -1,129 +1,184 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Memeflix - Minijuegos</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- CSS externo -->
-  <link rel="stylesheet" href="css/minijuegos.css">
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    /* Ajustes específicos para la página de minijuegos */
+    .catalogo { padding: 28px 16px 60px; }
+    .catalogo .grid { gap: 18px; align-items:start; }
+    .card.game { display:flex;flex-direction:column;cursor:pointer;overflow:hidden;min-height:220px }
+    .card.game .card-thumb { height:140px; overflow:hidden; background:#111; display:flex;align-items:center;justify-content:center }
+    .card.game img { width:100%; height:100%; object-fit:cover; display:block }
+    .card.game .card-body { padding:12px; display:flex;flex-direction:column;gap:8px; flex:1 }
+    .card.game .meta { color:var(--muted); font-size:0.9rem }
+    .card.disabled { opacity:0.6; pointer-events:none; filter:grayscale(0.25) }
+    .game-actions { display:flex;gap:8px;flex-wrap:wrap;align-items:center }
+    .small-note { font-size:0.9rem;color:var(--muted) }
+    @media (max-width:520px){
+      .card.game .card-thumb { height:110px }
+    }
+  </style>
 </head>
 <body>
-  <!-- Fondo Matrix -->
-  <canvas id="matrix"></canvas>
+  <canvas id="matrix" aria-hidden="true"></canvas>
 
-  <!-- Navbar -->
-  <nav class="navbar">
+  <header class="navbar page-layer" role="banner">
     <div class="logo">MEMEFLIX</div>
-    <ul class="nav-links">
-      <li><a href="home.html">Inicio</a></li>
-      <li><a href="memes.html">Memes</a></li>
-      <li><a href="sugerencias.html">Sugerencias</a></li>
-      <li><a href="minijuegos.html" class="active">Minijuegos</a></li>
-    </ul>
-    <div class="usuario" id="usuarioDisplay"></div>
-  </nav>
-
-  <!-- Hero -->
-  <header class="hero">
-    <h1>Juega a los <span class="highlight">Minijuegos</span></h1>
-    <p>Experiencias rápidas, fluidas y con estilo. ¡Evita los memes y gana!</p>
+    <button class="menu-toggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
+    <nav aria-label="Menú principal">
+      <ul class="nav-links" role="menubar">
+        <li role="none"><a role="menuitem" href="home.html">Inicio</a></li>
+        <li role="none"><a role="menuitem" href="memes.html">Memes</a></li>
+        <li role="none"><a role="menuitem" href="sugerencias.html">Sugerencias</a></li>
+        <li role="none"><a role="menuitem" href="minijuegos.html" class="active">Minijuegos</a></li>
+      </ul>
+    </nav>
+    <div class="nav-right page-layer">
+      <div class="usuario" aria-live="polite"></div>
+      <a id="staffLink" class="btn ghost" href="STAFF/staff.html">Staff</a>
+    </div>
   </header>
 
-  <!-- Catálogo de minijuegos -->
-  <section class="catalogo">
-    <h2 class="section-title">🎮 Elige tu juego</h2>
-    <div class="grid">
-      <a class="card" href="js/buscamemes.html">
-        <div class="card-thumb">
-          <img src="imagenes/sixseven.jpg" alt="Buscamemes">
-        </div>
-        <div class="card-body">
-          <h3>Buscamemes</h3>
-          <p>Clásico Buscaminas, pero con memes. 3 niveles y cronómetro.</p>
-        </div>
-      </a>
+  <main class="page-layer">
+    <section class="catalogo container" aria-labelledby="catalogoTitle">
+      <h1 id="catalogoTitle" class="section-title">Elige tu <span class="highlight">Juego</span></h1>
+      <p class="small-note" style="text-align:center;margin-bottom:18px">
+        Juegos rápidos, accesibles y con la estética Memeflix. Los progresos se guardan localmente.
+      </p>
 
-      <!-- Ejemplos para más juegos (se activan cuando los integremos) -->
-<a class="card" href="js/snake.html">
-  <div class="card-thumb">
-    <img src="imagenes/meme1.jpg" alt="Snake">
-  </div>
-  <div class="card-body">
-    <h3>Snake</h3>
-    <p>Clásico Snake con estilo Memeflix. ¡Come, crece y evita chocar!</p>
-  </div>
-</a>
+      <div class="grid">
+        <!-- Buscamemes (versión mejorada) -->
+        <a class="card game" href="js/buscamemes.html" role="button" aria-pressed="false" title="Buscamemes">
+          <div class="card-thumb">
+            <img src="imagenes/sixseven.jpg" alt="Buscamemes - miniatura">
+          </div>
+          <div class="card-body">
+            <h3>Buscamemes</h3>
+            <p class="meta">Clásico Buscaminas con memes; 3 niveles, cronómetro y ranking local.</p>
+            <div class="game-actions">
+              <span class="small-note">Dificultad: Fácil → Intermedio → Six Seveeeen</span>
+              <button class="btn ghost" style="margin-left:auto">Jugar</button>
+            </div>
+          </div>
+        </a>
 
-      <a class="card disabled" href="#" title="Próximamente">
-        <div class="card-thumb">
-          <img src="imagenes/meme2.jpg" alt="Clicker">
+        <!-- Snake (próxima integración) -->
+        <div class="card game disabled" title="Próximamente">
+          <div class="card-thumb">
+            <img src="imagenes/meme1.jpg" alt="Snake - próximamente">
+          </div>
+          <div class="card-body">
+            <h3>Snake</h3>
+            <p class="meta">Clásico Snake con skins de memes. Próximamente.</p>
+            <div class="game-actions">
+              <span class="small-note">Controles: Flechas / WASD</span>
+              <button class="btn ghost" disabled>Próximamente</button>
+            </div>
+          </div>
         </div>
-        <div class="card-body">
-          <h3>Clicker</h3>
-          <p>Próximamente: clics, upgrades y récord.</p>
-        </div>
-      </a>
 
-      <a class="card disabled" href="#" title="Próximamente">
-        <div class="card-thumb">
-          <img src="imagenes/meme3.jpg" alt="Memoria">
+        <!-- Clicker (próximamente) -->
+        <div class="card game disabled" title="Próximamente">
+          <div class="card-thumb">
+            <img src="imagenes/meme2.jpg" alt="Clicker - próximamente">
+          </div>
+          <div class="card-body">
+            <h3>Clicker</h3>
+            <p class="meta">Clics, upgrades y récords. Próximamente.</p>
+            <div class="game-actions">
+              <span class="small-note">Ideal para sesiones cortas</span>
+              <button class="btn ghost" disabled>Próximamente</button>
+            </div>
+          </div>
         </div>
-        <div class="card-body">
-          <h3>Memoria</h3>
-          <p>Próximamente: encuentra parejas de memes.</p>
+
+        <!-- Memoria (próximamente) -->
+        <div class="card game disabled" title="Próximamente">
+          <div class="card-thumb">
+            <img src="imagenes/meme3.jpg" alt="Memoria - próximamente">
+          </div>
+          <div class="card-body">
+            <h3>Memoria</h3>
+            <p class="meta">Encuentra parejas de memes. Próximamente.</p>
+            <div class="game-actions">
+              <span class="small-note">Modo solitario y local</span>
+              <button class="btn ghost" disabled>Próximamente</button>
+            </div>
+          </div>
         </div>
-      </a>
-    </div>
-  </section>
+      </div>
 
-  <!-- Footer -->
-  <footer>
-    <p>© 2025 Memeflix - Jaime Muñoz Nicolás</p>
-  </footer>
+      <div style="text-align:center;margin-top:22px">
+        <p class="small-note">¿Tienes una idea para un juego? Envíala en <a href="sugerencias.html" class="btn ghost">Sugerencias</a></p>
+      </div>
+    </section>
 
+    <footer class="page-layer">
+      <div class="container">
+        <p>© 2025 Memeflix - Jaime Muñoz Nicolás</p>
+      </div>
+    </footer>
+  </main>
+
+  <script src="js/matrix.js"></script>
+  <script src="js/main.js"></script>
   <script>
-    // Fondo Matrix
-    const canvas = document.getElementById("matrix");
-    const ctx = canvas.getContext("2d");
-    canvas.height = window.innerHeight;
-    canvas.width = window.innerWidth;
+    // minijuegos.html - comportamiento específico
+    (function(){
+      // Mostrar usuario (refuerzo)
+      const usuario = localStorage.getItem('usuarioMemeflix');
+      document.querySelectorAll('.usuario').forEach(el => el.textContent = usuario ? ` _ ${usuario}` : 'Invitado');
 
-    const letters = "01";
-    const fontSize = 16;
-    const columns = canvas.width / fontSize;
-    const drops = [];
-    for (let x = 0; x < columns; x++) drops[x] = 1;
+      // Incrementar contador de minijuegos al hacer click en enlaces de juego reales
+      document.querySelectorAll('.card.game a, .card.game[href]').forEach(el => {
+        el.addEventListener('click', () => {
+          const v = parseInt(localStorage.getItem('minijuegosJugados') || '0', 10) + 1;
+          localStorage.setItem('minijuegosJugados', v);
+        });
+      });
 
-    function draw() {
-      ctx.fillStyle = "rgba(0,0,0,0.05)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#0F0";
-      ctx.font = fontSize + "px monospace";
-      for (let i = 0; i < drops.length; i++) {
-        const text = letters[Math.floor(Math.random() * letters.length)];
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-        drops[i]++;
+      // Si usas botones "Jugar" que no son enlaces, añade listener:
+      document.querySelectorAll('.card.game button').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const card = e.currentTarget.closest('.card.game');
+          const link = card.querySelector('a');
+          if(link){
+            // Simular incremento antes de navegar
+            const v = parseInt(localStorage.getItem('minijuegosJugados') || '0', 10) + 1;
+            localStorage.setItem('minijuegosJugados', v);
+            // Navegar
+            window.location.href = link.getAttribute('href');
+          }
+        });
+      });
+
+      // Accesibilidad: permitir abrir juego con Enter en tarjetas que son enlaces
+      document.querySelectorAll('.card.game[role="button"]').forEach(card => {
+        card.addEventListener('keydown', e => {
+          if(e.key === 'Enter' || e.key === ' ') {
+            const href = card.getAttribute('href');
+            if(href) window.location.href = href;
+          }
+        });
+      });
+
+      // Mejora UX: detectar si el usuario viene desde un juego y mostrar nota
+      const fromGame = sessionStorage.getItem('fromGame');
+      if(fromGame){
+        // breve notificación visual (no intrusiva)
+        const note = document.createElement('div');
+        note.className = 'toast';
+        note.textContent = 'Gracias por jugar. Tu partida se ha registrado.';
+        document.body.appendChild(note);
+        note.style.display = 'block';
+        setTimeout(()=> { note.style.display = 'none'; note.remove(); }, 3000);
+        sessionStorage.removeItem('fromGame');
       }
-    }
-    setInterval(draw, 33);
-
-    // Mostrar usuario
-    const usuario = localStorage.getItem("usuarioMemeflix");
-    if (usuario) document.getElementById("usuarioDisplay").textContent = "👤 " + usuario;
-
-    // Ajustar canvas al redimensionar
-    window.addEventListener("resize", () => {
-      canvas.height = window.innerHeight;
-      canvas.width = window.innerWidth;
-    });
+    })();
   </script>
-  <script>
-  function partidaTerminada() {
-    const v = parseInt(localStorage.getItem("minijuegosJugados") || "0", 10) + 1;
-    localStorage.setItem("minijuegosJugados", v);
-  }
-</script>
 </body>
 </html>
 
