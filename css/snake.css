@@ -1,0 +1,95 @@
+/* Base y fondo Matrix */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  color: #fff;
+  overflow-x: hidden;
+}
+canvas#matrix {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  background: black;
+}
+
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(20,20,20,0.85);
+  padding: 15px 30px;
+  box-shadow: 0 0 15px rgba(0,255,0,0.4);
+}
+.logo { font-size: 1.5rem; font-weight: bold; color: #e50914; text-shadow: 0 0 10px #e50914; }
+.nav-links { list-style: none; display: flex; gap: 20px; }
+.nav-links li a { color: #fff; text-decoration: none; transition: color 0.3s ease; }
+.nav-links li a:hover, .nav-links li a.active { color: #e50914; }
+.usuario { font-size: 1rem; color: #0f0; }
+
+/* Hero */
+.hero {
+  text-align: center;
+  padding: 60px 20px 20px;
+  background: rgba(0,0,0,0.6);
+  animation: fadeIn 1.5s ease forwards;
+}
+.hero-game h1 { font-size: 2rem; margin: 0 0 8px 0; }
+.hero-game p { font-size: 1rem; color: #cfcfcf; }
+
+.highlight { color: #e50914; text-shadow: 0 0 10px #e50914; }
+
+/* HUD */
+.hud {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  padding: 12px 20px;
+}
+.hud-item .label { color: #9bf59b; margin-right: 6px; }
+
+/* Controles */
+.controles {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 20px 20px;
+}
+.btn {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 0 18px rgba(0,255,0,0.3); }
+.btn.success { background: #2e7d32; color: #fff; }
+.btn.danger { background: #d32f2f; color: #fff; }
+.btn.secondary { background: #333; color: #fff; }
+
+/* Tablero */
+.tablero-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 30px;
+}
+#gameCanvas {
+  background: #1c1c1c;
+  border: 2px solid #e50914;
+  box-shadow: 0 0 20px rgba(0,255,0,0.4);
+}
+
+/* Footer */
+footer { text-align: center; padding: 20px; background: rgba(20,20,20,0.85); box-shadow: 0 -5px 15px rgba(0,255,0,0.4); }
+
+/* Animación base */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
