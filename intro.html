@@ -1,26 +1,24 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Intro Memeflix</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body { background: black; margin:0; }
-    video { width: 100%; height: 100vh; object-fit: cover; }
-  </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Intro - Memeflix</title>
+  <link rel="stylesheet" href="css/main.css">
+  <style>body{margin:0;background:#000}</style>
 </head>
 <body>
-  <!-- Cinemática -->
-  <video id="cinematica" autoplay muted>
+  <video id="cinematica" autoplay muted playsinline style="width:100%;height:100vh;object-fit:cover;display:block">
     <source src="imagenes/intro.mp4" type="video/mp4">
     Tu navegador no soporta video.
   </video>
-
   <script>
-    const video = document.getElementById("cinematica");
-    video.addEventListener("ended", () => {
-      window.location.href = "login.html"; // al terminar, pasa al login
-    });
+    const video = document.getElementById('cinematica');
+    video.addEventListener('ended', ()=> window.location.href = 'login.html');
+    // Si el usuario toca la pantalla, saltar intro
+    video.addEventListener('click', ()=> window.location.href = 'login.html');
   </script>
 </body>
 </html>
+
+
