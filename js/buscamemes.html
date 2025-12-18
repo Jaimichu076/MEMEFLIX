@@ -4,12 +4,16 @@
   <meta charset="UTF-8" />
   <title>Buscamemes</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- CSS global -->
   <link rel="stylesheet" href="../css/main.css" />
+  <!-- CSS específico del juego -->
   <link rel="stylesheet" href="../css/buscamemes.css" />
 </head>
 <body>
+  <!-- Fondo Matrix -->
   <canvas id="matrix"></canvas>
 
+  <!-- Navbar -->
   <nav class="navbar">
     <div class="logo">MEMEFLIX</div>
     <ul class="nav-links">
@@ -22,17 +26,20 @@
     <a class="btn ghost" href="../STAFF/staff.html">Staff</a>
   </nav>
 
+  <!-- Encabezado -->
   <header class="hero hero-game">
     <h1>Buscamemes</h1>
     <p>Evita los memes ocultos. Tres niveles, primer clic seguro y cronómetro.</p>
   </header>
 
+  <!-- HUD -->
   <section class="hud">
     <div class="hud-item"><span class="label">Tiempo:</span> <span id="timer">00:00</span></div>
     <div class="hud-item"><span class="label">Seguras restantes:</span> <span id="safeLeft">—</span></div>
     <div class="hud-item"><span class="label">Nivel:</span> <span id="nivelActual">—</span></div>
   </section>
 
+  <!-- Controles -->
   <section class="controles">
     <button id="btnFacil" class="btn success" onclick="iniciarJuego('facil')">Fácil</button>
     <button id="btnIntermedio" class="btn warning" onclick="iniciarJuego('intermedio')">Intermedio</button>
@@ -41,22 +48,27 @@
     <a href="minijuegos.html" class="btn secondary">⬅ Volver al menú</a>
   </section>
 
+  <!-- Tablero -->
   <section class="tablero-wrap">
     <div id="tablero" role="grid" aria-label="Tablero Buscamemes" tabindex="0"></div>
     <div id="estado" class="estado">Selecciona un nivel para comenzar.</div>
   </section>
 
+  <!-- Footer -->
   <footer>
     <p>© 2025 Memeflix - Jaime Muñoz Nicolás</p>
   </footer>
 
+  <!-- Scripts del juego -->
   <script src="buscameemes.js"></script>
   <script src="matrix.js"></script>
+
   <script>
+    // Mostrar usuario en navbar
     const usuario = localStorage.getItem("usuarioMemeflix");
     if (usuario) document.getElementById("usuarioDisplay").textContent = "👤 " + usuario;
 
-    // Fondo Matrix responsivo
+    // Fondo Matrix
     const canvas = document.getElementById("matrix");
     const ctx = canvas.getContext("2d");
     function resizeMatrix() {
@@ -121,5 +133,6 @@
   </script>
 </body>
 </html>
+
 
 
