@@ -1,0 +1,117 @@
+:root {
+  --cell-size: 40px;
+  --meme-image: url("../imagenes/sixseven.jpg");
+}
+
+/* Tablero y celdas */
+#tablero {
+  display: grid;
+  gap: 0;
+  padding: 6px;
+  border-radius: 10px;
+  outline: none;
+  justify-content: center;
+}
+
+.celda {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  background: #1b1b1b;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  cursor: pointer;
+  font-weight: 800;
+  font-family: monospace;
+  transition: background 0.14s ease, transform 0.12s ease;
+}
+
+.celda:hover {
+  transform: translateY(-1px);
+}
+
+.celda.revelada {
+  background: #2f2f2f;
+  cursor: default;
+}
+
+.celda.meme {
+  background-image: var(--meme-image);
+  background-size: cover;
+  background-position: center;
+}
+
+.celda.flagged {
+  color: #e50914;
+  font-weight: 700;
+}
+
+/* HUD */
+.hud {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 12px 0;
+}
+
+.hud-item {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Controles */
+.controles {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 12px 0;
+}
+
+.btn {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s ease;
+}
+
+.btn.success { background: #00c853; color: #fff; }
+.btn.warning { background: #ffab00; color: #000; }
+.btn.danger  { background: #d50000; color: #fff; }
+.btn.outline { background: transparent; border: 2px solid #ccc; color: #ccc; }
+.btn.secondary { background: #333; color: #fff; }
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Estado del juego */
+.estado {
+  min-height: 32px;
+  text-align: center;
+  color: var(--muted);
+  font-weight: 700;
+  margin-top: 8px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .celda {
+    width: 32px;
+    height: 32px;
+  }
+  :root {
+    --cell-size: 32px;
+  }
+}
