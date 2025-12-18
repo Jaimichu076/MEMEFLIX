@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Memeflix - Sugerencias recibidas (Staff)</title>
+  <link rel="stylesheet" href="../css/main.css" />
+  <style>
+    /* Estilos específicos para la vista de resultados de sugerencias (Staff) */
+    .shell { padding: calc(var(--nav-height) + 20px) 16px 60px; min-height:100vh; }
+    .panel-wrap { max-width:1200px; margin:0 auto; display:grid; gap:18px; grid-template-columns: 1fr; }
+    .controls { display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
+    .controls .left { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .controls .right { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .search { padding:8px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.04); background:#0f0f0f; color:var(--text) }
+    .filters { display:flex; gap:8px; align-items:center; }
+    .list { display:grid; gap:12px; margin-top:8px; }
+    .sug-card { display:flex; gap:12px; align-items:flex-start; padding:12px; border-radius:10px; background:var(--glass-bg); border:1px solid var(--glass-border); }
+    .sug-meta { min-width:160px; max-width:220px; color:var(--muted); font-size:0.9rem; }
+    .sug-body { flex:1; color:var(--text); }
+    .sug-actions { display:flex; gap:8px; align-items:center; margin-left:8px; }
+    .tag { display:inline-block; padding:6px 8px; border-radius:8px; background:rgba(255,255,255,0.02); color:var(--muted); font-size:0.85rem }
+    .empty { padding:18px; text-align:center; color:var(--muted) }
+    .bulk-bar { display:flex; gap:8px; align-items:center; padding:8px; border-radius:10px; background:rgba(0,0,0,0.45); border:1px solid rgba(255,255,255,0.03); }
+    .small { font-size:0.9rem; color:var(--muted) }
+    @media(min-width:900px){ .panel-wrap { grid-template-columns: 1fr 360px } }
+    .side-panel { display:flex; flex-direction:column; gap:12px; }
+    .side-panel .card { padding:12px; border-radius:10px; background:var(--glass-bg); border:1px solid var(--glass-border) }
+    .sug-card .excerpt { white-space:pre-wrap; line-height:1.3; }
+    .sug-card .meta-row { display:flex; gap:8px; align-items:center; margin-top:8px; color:var(--muted); font-size:0.85rem }
+    .btn.small { padding:6px 10px; font-size:0.9rem }
+  </style>
+</head>
+<body>
+  <canvas id="matrix" aria-hidden="true"></canvas>
+
+  <header class="navbar page-layer" role="banner">
+    <div class="logo">MEMEFLIX</div>
+    <button class="menu-toggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
+    <nav aria-label="Menú principal">
+      <ul class="nav-links" role="menubar">
+        <li role="none"><a role="menuitem" href="../home.html">Inicio</a></li>
+        <li role="none"><a role="menuitem" href="../memes.html">Memes</a></li>
+        <li role="none"><a role="menuitem" href="../sugerencias.html">Sugerencias</a></li>
+        <li role="none"><a role="menuitem" href="../minijuegos.html">Minijuegos</a></li>
+        <li role="none"><a role="menuitem" href="staff.html">Staff</a></li>
+        <li role="none"><a role="menuitem" href="estadisticas.html">Estadísticas</a></li>
+      </ul>
+    </nav>
+    <div class="nav-right page-layer">
+      <div class="usuario" aria-live="polite"></div>
+    </div>
+  </header>
+
+  <main class="page-layer shell">
+    <div class="panel-wrap container">
+      <section>
+        <h1 style="margin-top:0;color:var(--accent-red)">Sugerencias recibidas</h1>
+        <p class="small" style="margin:6px 0 12px">Lista de sugerencias guardadas localmente. Revisa, marca como revisada o elimina entradas.</p>
+
+        <div class="controls" role="toolbar" aria-label="Controles de sugerencias">
+          <div class="left">
+            <input id="search" class="search" type="search" placeholder="Buscar por nombre, email o texto..." aria-label="Buscar sugerencias">
+            <div class="filters" role="group" aria-label="Filtros">
+              <button class="btn ghost" data-filter="all">Todas</button>
+              <button class="btn ghost" data-filter="unread">Sin revisar</button>
+              <button class="btn ghost" data-filter="reviewed">Revisadas</button>
+            </div>
+          </div>
+
+          <div class="right">
+            <div class="bulk-bar" aria-hidden="false">
+              <label style="display:flex;align-items:center;gap:8px">
+                <input id="selectAll" type="checkbox" aria-label="Seleccionar todo"> <span class="small">Seleccionar</span>
+              </label>
+              <button id="btnMarkReviewed" class="btn small ghost">Marcar revisadas</button>
+              <button id="btnDeleteSelected" class="btn small">Eliminar seleccionadas</button>
+              <button id="btnExportCSV" class="btn small ghost">Exportar CSV</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="lista" class="list" aria-live="polite" style="margin-top:12px"></div>
+      </section>
+
+      <aside class="side-panel">
+        <div class="card">
+          <h3 style="margin:0 0 8px">Resumen</h3>
+          <div id="resumen" class="small">Cargando...</div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin:0 0 8px">Acciones rápidas</h3>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button id="btnClearAll" class="btn ghost small">Eliminar todo</button>
+            <button id="btnRestoreDemo" class="btn small">Restaurar demo</button>
+          </div>
+          <p class="small" style="margin-top:8px;color:var(--muted)">Las acciones afectan localStorage. Ten cuidado al eliminar datos.</p>
+        </div>
+
+        <div class="card">
+          <h3 style="margin:0 0 8px">Ayuda</h3>
+          <p class="small" style="margin:0;color:var(--muted)">Usa los filtros y la búsqueda para encontrar sugerencias. Marca como revisada cuando la hayas procesado.</p>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="page-layer" style="padding:18px 0;text-align:center;color:var(--muted)">
+    <div class="container">Memeflix · Panel Staff · © 2025</div>
+  </footer>
+
+  <script src="../js/matrix.js"></script>
+  <script src="../js/main.js"></script>
+
+  <script>
+  // STAFF/sugerenciasresultados.html - gestión de sugerencias guardadas en localStorage
+  (function(){
+    // Helpers
+    function safeParse(raw, def){ try { const v = JSON.parse(raw); return Array.isArray(v) ? v : def; } catch { return def; } }
+    function getSugerencias(){ return safeParse(localStorage.getItem('sugerenciasList'), []); }
+    function saveSugerencias(arr){ localStorage.setItem('sugerenciasList', JSON.stringify(arr)); }
+    function formatDate(ts){ try { return new Date(ts).toLocaleString('es-ES'); } catch { return ''; } }
+    function uid(){ return 's_' + Date.now() + '_' + Math.floor(Math.random()*9999); }
+
+    // DOM
+    const listaEl = document.getElementById('lista');
+    const resumenEl = document.getElementById('resumen');
+    const searchEl = document.getElementById('search');
+    const filterBtns = Array.from(document.querySelectorAll('[data-filter]'));
+    const selectAllEl = document.getElementById('selectAll');
+    const btnMarkReviewed = document.getElementById('btnMarkReviewed');
+    const btnDeleteSelected = document.getElementById('btnDeleteSelected');
+    const btnExportCSV = document.getElementById('btnExportCSV');
+    const btnClearAll = document.getElementById('btnClearAll');
+    const btnRestoreDemo = document.getElementById('btnRestoreDemo');
+
+    // State
+    let sugerencias = getSugerencias().map(s => ({ ...s, reviewed: !!s.reviewed }));
+    let currentFilter = 'all';
+    let selected = new Set();
+
+    // Seed demo if empty
+    function seedDemo(){
+      const demo = [
+        { id: uid(), nombre: 'Jaime', email: 'jaime@example.com', mensaje: 'Me gustaría un modo oscuro alternativo para el reproductor.', ts: Date.now() - 1000*60*60*24, reviewed: false },
+        { id: uid(), nombre: 'Laura', email: 'laura@example.com', mensaje: '¿Podéis añadir más minijuegos cooperativos?', ts: Date.now() - 1000*60*60*5, reviewed: true },
+        { id: uid(), nombre: 'Carlos', email: 'carlos@example.com', mensaje: 'El buscador de memes podría filtrar por etiquetas.', ts: Date.now() - 1000*60*30, reviewed: false }
+      ];
+      sugerencias = demo;
+      saveSugerencias(sugerencias);
+    }
+
+    if(!sugerencias || sugerencias.length === 0){
+      // no forzamos demo unless user asks; keep empty but provide restore demo button
+      // seedDemo(); // commented to avoid overwriting real data
+    }
+
+    // Render
+    function render(){
+      // Apply search + filter
+      const q = (searchEl.value || '').trim().toLowerCase();
+      const filtered = sugerencias.filter(s => {
+        if(currentFilter === 'unread' && s.reviewed) return false;
+        if(currentFilter === 'reviewed' && !s.reviewed) return false;
+        if(!q) return true;
+        return (s.nombre || '').toLowerCase().includes(q) ||
+               (s.email || '').toLowerCase().includes(q) ||
+               (s.mensaje || '').toLowerCase().includes(q);
+      });
+
+      // Update resumen
+      const total = sugerencias.length;
+      const unread = sugerencias.filter(s => !s.reviewed).length;
+      resumenEl.innerHTML = `<div>Total: <strong>${total}</strong></div><div>Sin revisar: <strong>${unread}</strong></div>`;
+
+      // Render list
+      if(filtered.length === 0){
+        listaEl.innerHTML = `<div class="empty">No hay sugerencias que coincidan.</div>`;
+        return;
+      }
+
+      listaEl.innerHTML = filtered.map(s => {
+        const reviewedClass = s.reviewed ? 'tag' : 'tag';
+        const checked = selected.has(s.id) ? 'checked' : '';
+        const excerpt = (s.mensaje || '').length > 280 ? (s.mensaje || '').slice(0,280) + '…' : (s.mensaje || '');
+        return `
+          <div class="sug-card" data-id="${s.id}">
+            <label style="display:flex;align-items:flex-start;gap:12px">
+              <input type="checkbox" class="sel" data-id="${s.id}" ${checked} aria-label="Seleccionar sugerencia">
+            </label>
+            <div class="sug-meta">
+              <strong>${escapeHtml(s.nombre || 'Anónimo')}</strong>
+              <div style="margin-top:6px">${escapeHtml(s.email || '')}</div>
+              <div class="meta-row">
+                <span class="${reviewedClass}">${s.reviewed ? 'Revisada' : 'Sin revisar'}</span>
+                <span>${formatDate(s.ts)}</span>
+              </div>
+            </div>
+            <div class="sug-body">
+              <div class="excerpt">${escapeHtml(excerpt)}</div>
+              <div class="meta-row">
+                <button class="btn small" data-action="view" data-id="${s.id}">Ver</button>
+                <button class="btn small ghost" data-action="toggle" data-id="${s.id}">${s.reviewed ? 'Marcar sin revisar' : 'Marcar revisada'}</button>
+                <button class="btn small" data-action="delete" data-id="${s.id}">Eliminar</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Attach listeners for dynamic elements
+      Array.from(listaEl.querySelectorAll('.sel')).forEach(chk => {
+        chk.addEventListener('change', e => {
+          const id = e.target.dataset.id;
+          if(e.target.checked) selected.add(id); else selected.delete(id);
+          updateSelectAllCheckbox();
+        });
+      });
+
+      Array.from(listaEl.querySelectorAll('button[data-action]')).forEach(btn => {
+        btn.addEventListener('click', e => {
+          const id = btn.dataset.id;
+          const action = btn.dataset.action;
+          if(action === 'view') openViewer(id);
+          if(action === 'toggle') toggleReviewed(id);
+          if(action === 'delete') deleteOne(id);
+        });
+      });
+
+      updateSelectAllCheckbox();
+    }
+
+    // Utilities
+    function escapeHtml(str){
+      if(!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function updateSelectAllCheckbox(){
+      const allIds = sugerencias.map(s => s.id);
+      const visibleCheckboxes = Array.from(listaEl.querySelectorAll('.sel')).map(i => i.dataset.id);
+      if(visibleCheckboxes.length === 0){ selectAllEl.checked = false; selectAllEl.indeterminate = false; return; }
+      const checkedCount = visibleCheckboxes.filter(id => selected.has(id)).length;
+      selectAllEl.checked = checkedCount === visibleCheckboxes.length;
+      selectAllEl.indeterminate = checkedCount > 0 && checkedCount < visibleCheckboxes.length;
+    }
+
+    // Actions
+    function openViewer(id){
+      const s = sugerencias.find(x => x.id === id);
+      if(!s) return alert('Sugerencia no encontrada.');
+      // Modal ligero
+      const modal = document.createElement('div');
+      modal.style.position = 'fixed';
+      modal.style.inset = '0';
+      modal.style.display = 'flex';
+      modal.style.alignItems = 'center';
+      modal.style.justifyContent = 'center';
+      modal.style.background = 'rgba(0,0,0,0.6)';
+      modal.style.zIndex = 2000;
+      modal.innerHTML = `
+        <div style="max-width:900px;width:100%;background:#000;border-radius:12px;overflow:hidden">
+          <div style="padding:16px">
+            <h2 style="margin:0 0 8px;color:var(--accent-red)">${escapeHtml(s.nombre || 'Anónimo')}</h2>
+            <div style="color:var(--muted);margin-bottom:12px">${escapeHtml(s.email || '')} · ${formatDate(s.ts)}</div>
+            <div style="color:var(--text);white-space:pre-wrap;line-height:1.4">${escapeHtml(s.mensaje || '')}</div>
+            <div style="display:flex;gap:8px;margin-top:12px">
+              <button id="modalToggle" class="btn small ghost">${s.reviewed ? 'Marcar sin revisar' : 'Marcar revisada'}</button>
+              <button id="modalDelete" class="btn small">Eliminar</button>
+              <button id="modalClose" class="btn small ghost">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      document.body.style.overflow = 'hidden';
+      modal.querySelector('#modalClose').addEventListener('click', () => { modal.remove(); document.body.style.overflow = ''; });
+      modal.querySelector('#modalDelete').addEventListener('click', () => { if(confirm('Eliminar esta sugerencia?')) { deleteOne(id); modal.remove(); document.body.style.overflow = ''; } });
+      modal.querySelector('#modalToggle').addEventListener('click', () => { toggleReviewed(id); modal.remove(); document.body.style.overflow = ''; });
+    }
+
+    function toggleReviewed(id){
+      const idx = sugerencias.findIndex(s => s.id === id);
+      if(idx === -1) return;
+      sugerencias[idx].reviewed = !sugerencias[idx].reviewed;
+      saveSugerencias(sugerencias);
+      render();
+    }
+
+    function deleteOne(id){
+      if(!confirm('Eliminar esta sugerencia?')) return;
+      sugerencias = sugerencias.filter(s => s.id !== id);
+      saveSugerencias(sugerencias);
+      selected.delete(id);
+      render();
+    }
+
+    // Bulk actions
+    btnMarkReviewed.addEventListener('click', () => {
+      if(selected.size === 0) return alert('No hay sugerencias seleccionadas.');
+      sugerencias = sugerencias.map(s => selected.has(s.id) ? { ...s, reviewed: true } : s);
+      saveSugerencias(sugerencias);
+      selected.clear();
+      render();
+    });
+
+    btnDeleteSelected.addEventListener('click', () => {
+      if(selected.size === 0) return alert('No hay sugerencias seleccionadas.');
+      if(!confirm('Eliminar las sugerencias seleccionadas?')) return;
+      sugerencias = sugerencias.filter(s => !selected.has(s.id));
+      saveSugerencias(sugerencias);
+      selected.clear();
+      render();
+    });
+
+    // Export CSV (simple)
+    btnExportCSV.addEventListener('click', () => {
+      const arr = sugerencias.slice();
+      if(arr.length === 0) return alert('No hay datos para exportar.');
+      const rows = [['id','nombre','email','mensaje','ts','reviewed']];
+      arr.forEach(s => rows.push([s.id, s.nombre || '', s.email || '', (s.mensaje || '').replace(/\r?\n/g,' \\n '), s.ts || '', s.reviewed ? '1' : '0']));
+      const csv = rows.map(r => r.map(cell => `"${String(cell).replace(/"/g,'""')}"`).join(',')).join('\n');
+      // Crear enlace de descarga (no sube nada)
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'sugerencias_memeflix.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    // Select all visible
+    selectAllEl.addEventListener('change', () => {
+      const visible = Array.from(listaEl.querySelectorAll('.sel')).map(i => i.dataset.id);
+      if(selectAllEl.checked) visible.forEach(id => selected.add(id)); else visible.forEach(id => selected.delete(id));
+      render();
+    });
+
+    // Filters
+    filterBtns.forEach(b => b.addEventListener('click', () => {
+      currentFilter = b.dataset.filter;
+      // visual active
+      filterBtns.forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      selected.clear();
+      render();
+    }));
+
+    // Search
+    let searchTimer = null;
+    searchEl.addEventListener('input', () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => { selected.clear(); render(); }, 220);
+    });
+
+    // Clear all
+    btnClearAll.addEventListener('click', () => {
+      if(!confirm('Eliminar todas las sugerencias guardadas en localStorage? Esta acción es irreversible.')) return;
+      sugerencias = [];
+      saveSugerencias(sugerencias);
+      selected.clear();
+      render();
+    });
+
+    // Restore demo
+    btnRestoreDemo.addEventListener('click', () => {
+      if(!confirm('Restaurar datos de demo (sobrescribe los datos actuales)?')) return;
+      seedDemo();
+      saveSugerencias(sugerencias);
+      selected.clear();
+      render();
+    });
+
+    // Initial render
+    render();
+
+    // Show usuario in header
+    const usuario = localStorage.getItem('usuarioMemeflix');
+    document.querySelectorAll('.usuario').forEach(el => el.textContent = usuario ? ` _ ${usuario}` : 'Invitado');
+
+    // Keep local copy in sync if other tabs change localStorage
+    window.addEventListener('storage', (e) => {
+      if(e.key === 'sugerenciasList'){
+        sugerencias = getSugerencias().map(s => ({ ...s, reviewed: !!s.reviewed }));
+        selected.clear();
+        render();
+      }
+    });
+
+  })();
+  </script>
+</body>
+</html>
