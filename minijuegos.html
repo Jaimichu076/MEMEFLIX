@@ -5,6 +5,23 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Memeflix - Minijuegos</title>
   <link rel="stylesheet" href="css/main.css">
+  <style>
+    /* Ajustes locales para la página de minijuegos */
+    .catalogo { padding: calc(var(--nav-height) + 20px) 16px 60px; min-height:100vh; }
+    .grid { display:grid; gap:18px; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); align-items:start; }
+    .card.game { display:flex;flex-direction:column;cursor:pointer;overflow:hidden;min-height:220px; transition:transform .18s ease, box-shadow .18s ease; }
+    .card.game .card-body { padding:18px; display:flex;flex-direction:column;gap:10px; flex:1; }
+    .card-thumb { height:140px; overflow:hidden; background:#0b0b0b; display:flex;align-items:center;justify-content:center }
+    .card-thumb img { width:100%; height:100%; object-fit:cover; display:block }
+    .card .meta { color:var(--muted); font-size:0.95rem }
+    .card .actions { margin-top:auto; display:flex;gap:8px; align-items:center }
+    .card.game:hover { transform:translateY(-6px); box-shadow:0 14px 40px rgba(0,0,0,0.6); }
+    .disabled { opacity:0.6; pointer-events:none; filter:grayscale(0.25); }
+    .note { text-align:center; color:var(--muted); margin-top:18px }
+    @media (max-width:720px){
+      .card-thumb { height:110px }
+    }
+  </style>
 </head>
 <body>
   <canvas id="matrix" aria-hidden="true"></canvas>
@@ -29,37 +46,59 @@
   <main class="page-layer">
     <section class="catalogo container" aria-labelledby="catalogoTitle" style="padding-top:calc(var(--nav-height) + 20px)">
       <h1 id="catalogoTitle" class="section-title">Elige tu juego</h1>
-      <p style="text-align:center;color:var(--muted);margin-bottom:18px">Juegos rápidos con la estética Memeflix. Haz clic para abrir cada juego.</p>
+      <p style="text-align:center;color:var(--muted);margin-bottom:18px">Juegos rápidos con la estética Memeflix. Haz clic en "Jugar" para abrir cada juego en la misma pestaña.</p>
 
-      <div class="grid">
-        <a class="card game" href="js/buscamemes.html" title="Buscaminas" aria-label="Abrir Buscaminas">
+      <div class="grid" id="gamesGrid">
+        <!-- Buscaminas -->
+        <article class="card game" data-href="js/buscamemes.html" tabindex="0" role="button" aria-label="Abrir Buscaminas">
+          <div class="card-thumb"><img src="imagenes/sixseven.jpg" alt="Buscaminas miniatura"></div>
           <div class="card-body">
             <h3>Buscaminas</h3>
-            <p class="meta">Clásico Buscaminas con memes; 3 niveles y cronómetro.</p>
-            <div style="margin-top:8px"><span class="btn ghost">Jugar Buscaminas</span></div>
+            <p class="meta">Clásico Buscaminas con memes; 3 niveles, cronómetro y ranking local.</p>
+            <div class="actions">
+              <span class="btn ghost" data-action="open">Jugar Buscaminas</span>
+            </div>
           </div>
-        </a>
+        </article>
 
-        <a class="card game" href="js/snake.html" title="Snake" aria-label="Abrir Snake">
+        <!-- Snake -->
+        <article class="card game" data-href="js/snake.html" tabindex="0" role="button" aria-label="Abrir Snake">
+          <div class="card-thumb"><img src="imagenes/meme1.jpg" alt="Snake miniatura"></div>
           <div class="card-body">
             <h3>Snake</h3>
-            <p class="meta">Snake con skins y guardado local de puntuaciones.</p>
-            <div style="margin-top:8px"><span class="btn ghost">Jugar Snake</span></div>
+            <p class="meta">Clásico Snake con skins de memes. Controles: Flechas / WASD. Soporte táctil.</p>
+            <div class="actions">
+              <span class="btn ghost" data-action="open">Jugar Snake</span>
+            </div>
           </div>
-        </a>
+        </article>
 
-        <a class="card game" href="js/quiz.html" title="Quiz" aria-label="Abrir Quiz">
+        <!-- Quiz -->
+        <article class="card game" data-href="js/quiz.html" tabindex="0" role="button" aria-label="Abrir Quiz">
+          <div class="card-thumb"><img src="imagenes/serie2.jpg" alt="Quiz miniatura"></div>
           <div class="card-body">
             <h3>Quiz</h3>
-            <p class="meta">Preguntas rápidas con temporizador y ranking local.</p>
-            <div style="margin-top:8px"><span class="btn ghost">Jugar Quiz</span></div>
+            <p class="meta">Preguntas rápidas con temporizador y ranking local. Ideal para retos cortos.</p>
+            <div class="actions">
+              <span class="btn ghost" data-action="open">Jugar Quiz</span>
+            </div>
           </div>
-        </a>
+        </article>
+
+        <!-- Placeholder para futuros juegos -->
+        <article class="card game disabled" aria-hidden="true">
+          <div class="card-thumb"><img src="imagenes/serie3.jpg" alt="Próximamente"></div>
+          <div class="card-body">
+            <h3>Próximamente</h3>
+            <p class="meta">Más juegos en camino. Envía ideas en Sugerencias.</p>
+            <div class="actions">
+              <span class="btn ghost" aria-disabled="true">Próximamente</span>
+            </div>
+          </div>
+        </article>
       </div>
 
-      <div style="text-align:center;margin-top:22px">
-        <p class="small">¿Quieres añadir otro juego? Envíalo en <a href="sugerencias.html" class="btn ghost">Sugerencias</a></p>
-      </div>
+      <p class="note">¿Quieres añadir otro juego? Envíalo en <a href="sugerencias.html" class="btn ghost">Sugerencias</a></p>
     </section>
 
     <footer class="page-layer">
@@ -71,8 +110,80 @@
 
   <script src="js/matrix.js"></script>
   <script src="js/main.js"></script>
+
+  <script>
+  // Comportamiento de la cuadrícula de juegos: accesible y robusto
+  (function(){
+    const grid = document.getElementById('gamesGrid');
+
+    // Abrir juego en la misma pestaña
+    function openGame(href){
+      // pequeña animación de feedback
+      const msg = document.createElement('div');
+      msg.textContent = 'Abriendo...';
+      msg.style.position = 'fixed';
+      msg.style.left = '50%';
+      msg.style.top = '20%';
+      msg.style.transform = 'translateX(-50%)';
+      msg.style.background = 'rgba(0,0,0,0.8)';
+      msg.style.color = '#fff';
+      msg.style.padding = '8px 12px';
+      msg.style.borderRadius = '8px';
+      msg.style.zIndex = 2000;
+      document.body.appendChild(msg);
+      setTimeout(() => { document.body.removeChild(msg); window.location.href = href; }, 260);
+    }
+
+    // Delegación de clicks y teclas
+    grid.addEventListener('click', (e) => {
+      const card = e.target.closest('.card.game');
+      if(!card) return;
+      const href = card.dataset.href;
+      if(!href) return;
+      openGame(href);
+    });
+
+    // Botones "Jugar" dentro de las tarjetas
+    grid.querySelectorAll('[data-action="open"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const card = e.target.closest('.card.game');
+        if(!card) return;
+        const href = card.dataset.href;
+        if(!href) return;
+        openGame(href);
+      });
+    });
+
+    // Soporte teclado: Enter o Space abre el juego cuando la tarjeta está enfocada
+    grid.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter' || e.key === ' '){
+        const card = document.activeElement.closest ? document.activeElement.closest('.card.game') : null;
+        if(!card) return;
+        e.preventDefault();
+        const href = card.dataset.href;
+        if(!href) return;
+        openGame(href);
+      }
+    });
+
+    // Hacer las tarjetas focusables y mejorar accesibilidad
+    Array.from(grid.querySelectorAll('.card.game')).forEach(card => {
+      card.setAttribute('tabindex', '0');
+      card.addEventListener('focus', () => card.classList.add('focused'));
+      card.addEventListener('blur', () => card.classList.remove('focused'));
+    });
+
+    // Mostrar usuario en header (refuerzo)
+    const usuario = localStorage.getItem('usuarioMemeflix');
+    document.querySelectorAll('.usuario').forEach(el => el.textContent = usuario ? ` _ ${usuario}` : 'Invitado');
+
+  })();
+  </script>
 </body>
 </html>
+
+
 
 
 
