@@ -1,106 +1,264 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Memeflix - Sugerencias</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- CSS externo -->
-  <link rel="stylesheet" href="css/sugerencias.css">
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    /* Pequeños ajustes específicos para la página de sugerencias */
+    .sugerencias-section { padding: 28px 16px 60px; }
+    .respuesta-msg { margin-top: 12px; color: var(--muted); font-weight:700; }
+    .toast {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      background: rgba(0,0,0,0.85);
+      color: var(--text);
+      border: 1px solid var(--glass-border);
+      padding: 12px 16px;
+      border-radius: 10px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+      z-index: 1600;
+      display: none;
+    }
+    .form-row { display:flex; gap:12px; flex-wrap:wrap; }
+    .form-row > * { flex:1 1 220px; min-width:160px; }
+  </style>
 </head>
 <body>
   <!-- Fondo Matrix -->
-  <canvas id="matrix"></canvas>
+  <canvas id="matrix" aria-hidden="true"></canvas>
 
   <!-- Navbar -->
-  <nav class="navbar">
+  <header class="navbar page-layer" role="banner">
     <div class="logo">MEMEFLIX</div>
-    <ul class="nav-links">
-      <li><a href="home.html">Inicio</a></li>
-      <li><a href="memes.html">Memes</a></li>
-      <li><a href="sugerencias.html" class="active">Sugerencias</a></li>
-      <li><a href="minijuegos.html">Minijuegos</a></li>
-    </ul>
-    <div class="usuario" id="usuarioDisplay"></div>
-  </nav>
-
-  <!-- Hero -->
-  <header class="hero">
-    <h1>Comparte tus <span class="highlight">Sugerencias</span></h1>
-    <p>Tu opinión nos ayuda a mejorar Memeflix. Déjanos tus ideas aquí.</p>
+    <button class="menu-toggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
+    <nav aria-label="Menú principal">
+      <ul class="nav-links" role="menubar">
+        <li role="none"><a role="menuitem" href="home.html">Inicio</a></li>
+        <li role="none"><a role="menuitem" href="memes.html">Memes</a></li>
+        <li role="none"><a role="menuitem" href="sugerencias.html" class="active">Sugerencias</a></li>
+        <li role="none"><a role="menuitem" href="minijuegos.html">Minijuegos</a></li>
+      </ul>
+    </nav>
+    <div class="nav-right page-layer">
+      <div class="usuario" aria-live="polite"></div>
+      <a id="staffLink" class="btn ghost" href="STAFF/staff.html">Staff</a>
+    </div>
   </header>
 
-  <!-- Formulario de sugerencias -->
-  <section class="sugerencias">
-    <h2 class="section-title">💡 Envía tu sugerencia</h2>
-    <form id="sugerenciasForm">
-      <input type="text" id="nombre" placeholder="Tu nombre" required>
-      <input type="email" id="email" placeholder="Tu correo" required>
-      <textarea id="mensaje" placeholder="Escribe tu sugerencia..." required></textarea>
-      <button type="submit">Enviar</button>
-    </form>
-    <div id="respuesta"></div>
-  </section>
+  <main class="page-layer">
+    <section class="sugerencias-section container" aria-labelledby="sugerenciasTitle">
+      <h1 id="sugerenciasTitle" class="hero" style="margin-top:calc(var(--nav-height) + 8px);text-align:center">
+        Comparte tus <span class="highlight">Sugerencias</span>
+      </h1>
+      <p style="text-align:center;color:var(--muted);margin-top:8px">
+        Tu opinión nos ayuda a mejorar Memeflix. Déjanos tus ideas y las revisaremos.
+      </p>
 
-  <!-- Footer -->
-  <footer>
-    <p>© 2025 Memeflix - Jaime Muñoz Nicolás</p>
+      <div style="max-width:900px;margin:18px auto 0">
+        <form id="sugerenciasForm" class="form-card" novalidate>
+          <div class="form-row">
+            <input id="nombre" name="nombre" type="text" placeholder="Tu nombre" autocomplete="name" required aria-required="true">
+            <input id="email" name="email" type="email" placeholder="Tu correo" autocomplete="email" required aria-required="true">
+          </div>
+          <label for="mensaje" style="display:block;margin:8px 0 6px;font-weight:700;color:var(--muted)">Tu sugerencia</label>
+          <textarea id="mensaje" name="mensaje" placeholder="Escribe tu sugerencia..." required aria-required="true"></textarea>
+
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px">
+            <button class="btn" type="submit">Enviar</button>
+            <button id="btnLimpiar" type="button" class="btn ghost">Limpiar</button>
+            <div id="respuesta" class="respuesta-msg" aria-live="polite"></div>
+          </div>
+        </form>
+
+        <section aria-labelledby="historialTitle" style="margin-top:22px">
+          <h2 id="historialTitle" class="section-title">Sugerencias enviadas (local)</h2>
+          <div id="listaSugerencias" class="grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-top:12px"></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer class="page-layer">
+    <div class="container">
+      <p>© 2025 Memeflix - Jaime Muñoz Nicolás</p>
+    </div>
   </footer>
 
+  <!-- Toast de confirmación -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/matrix.js"></script>
+  <script src="js/main.js"></script>
+
   <script>
-    // Fondo Matrix
-    const canvas = document.getElementById("matrix");
-    const ctx = canvas.getContext("2d");
-    canvas.height = window.innerHeight;
-    canvas.width = window.innerWidth;
+  // sugerencias.html - manejo de formulario, almacenamiento local y renderizado
+  (function(){
+    const form = document.getElementById('sugerenciasForm');
+    const nombreInput = document.getElementById('nombre');
+    const emailInput = document.getElementById('email');
+    const mensajeInput = document.getElementById('mensaje');
+    const respuestaDiv = document.getElementById('respuesta');
+    const listaDiv = document.getElementById('listaSugerencias');
+    const toast = document.getElementById('toast');
+    const btnLimpiar = document.getElementById('btnLimpiar');
 
-    const letters = "01";
-    const fontSize = 16;
-    const columns = canvas.width / fontSize;
-    const drops = [];
-    for (let x = 0; x < columns; x++) drops[x] = 1;
+    // Sanitiza texto simple para evitar inyección en el DOM
+    function sanitize(text){
+      const div = document.createElement('div');
+      div.innerText = text;
+      return div.innerText;
+    }
 
-    function draw() {
-      ctx.fillStyle = "rgba(0,0,0,0.05)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#0F0";
-      ctx.font = fontSize + "px monospace";
-      for (let i = 0; i < drops.length; i++) {
-        const text = letters[Math.floor(Math.random() * letters.length)];
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-        drops[i]++;
+    // Leer sugerencias desde localStorage
+    function leerSugerencias(){
+      try {
+        const raw = localStorage.getItem('sugerenciasList') || '[]';
+        const arr = JSON.parse(raw);
+        return Array.isArray(arr) ? arr : [];
+      } catch {
+        return [];
       }
     }
-    setInterval(draw, 33);
 
-    // Mostrar usuario
-    const usuario = localStorage.getItem("usuarioMemeflix");
-    if (usuario) document.getElementById("usuarioDisplay").textContent = "👤 " + usuario;
+    // Guardar sugerencias en localStorage
+    function guardarSugerencia(obj){
+      const arr = leerSugerencias();
+      arr.unshift(obj); // la más reciente al inicio
+      // limitar a 200 entradas para no saturar localStorage
+      if(arr.length > 200) arr.length = 200;
+      localStorage.setItem('sugerenciasList', JSON.stringify(arr));
+    }
 
-    // Ajustar canvas al redimensionar
-    window.addEventListener("resize", () => {
-      canvas.height = window.innerHeight;
-      canvas.width = window.innerWidth;
-    });
+    // Renderizar lista de sugerencias
+    function renderLista(){
+      const arr = leerSugerencias();
+      if(arr.length === 0){
+        listaDiv.innerHTML = '<div class="card glass" style="padding:18px;color:var(--muted)">No hay sugerencias aún.</div>';
+        return;
+      }
+      listaDiv.innerHTML = arr.map(s => {
+        const fecha = new Date(s.ts).toLocaleString('es-ES');
+        // construimos HTML seguro usando textContent en creación DOM
+        return `<div class="card glass" data-id="${s.id}">
+          <div style="padding:8px 12px">
+            <strong style="color:var(--accent-red)">${sanitize(s.nombre)}</strong>
+            <div style="color:var(--muted);font-size:0.9rem">${sanitize(s.email)}</div>
+            <p style="margin:8px 0 0;color:var(--text)">${sanitize(s.mensaje)}</p>
+            <div style="margin-top:8px;color:var(--muted);font-size:0.85rem">${fecha}</div>
+          </div>
+        </div>`;
+      }).join('');
+    }
 
-    // Formulario de sugerencias
-    document.getElementById("sugerenciasForm").addEventListener("submit", e => {
+    // Mostrar toast
+    function showToast(text, ms = 3000){
+      toast.textContent = text;
+      toast.style.display = 'block';
+      setTimeout(()=> {
+        toast.style.display = 'none';
+      }, ms);
+    }
+
+    // Incrementar contador de sugerencias (clave sugerenciasEnviadas)
+    function incSugerenciasCounter(){
+      const v = parseInt(localStorage.getItem('sugerenciasEnviadas') || '0', 10) + 1;
+      localStorage.setItem('sugerenciasEnviadas', v);
+    }
+
+    // Validación simple y envío
+    form.addEventListener('submit', e => {
       e.preventDefault();
-      const nombre = document.getElementById("nombre").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const mensaje = document.getElementById("mensaje").value.trim();
-      if (!nombre || !email || !mensaje) return;
-      document.getElementById("respuesta").textContent = "✅ ¡Gracias por tu sugerencia, " + nombre + "!";
-      document.getElementById("sugerenciasForm").reset();
+      respuestaDiv.textContent = '';
+      const nombre = nombreInput.value.trim();
+      const email = emailInput.value.trim();
+      const mensaje = mensajeInput.value.trim();
+
+      // Validaciones
+      if(!nombre || !email || !mensaje){
+        respuestaDiv.textContent = 'Rellena todos los campos antes de enviar.';
+        return;
+      }
+      // Email básico
+      const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if(!emailRe.test(email)){
+        respuestaDiv.textContent = 'Introduce un correo válido.';
+        return;
+      }
+
+      // Construir objeto de sugerencia
+      const sugerencia = {
+        id: 'sug_' + Date.now(),
+        nombre: nombre,
+        email: email,
+        mensaje: mensaje,
+        ts: Date.now()
+      };
+
+      // Guardar localmente
+      guardarSugerencia(sugerencia);
+      incSugerenciasCounter();
+
+      // Mensaje de agradecimiento accesible
+      respuestaDiv.textContent = `☒ ¡Gracias por tu sugerencia, ${nombre}!`;
+      respuestaDiv.style.color = 'var(--accent-red)';
+
+      // Limpiar formulario (mantener nombre/email si quieres)
+      mensajeInput.value = '';
+      // Actualizar lista y mostrar toast
+      renderLista();
+      showToast('Sugerencia enviada. ¡Gracias!');
+
+      // Opcional: enviar a un endpoint si lo integras en el futuro (no implementado)
     });
+
+    // Botón limpiar
+    btnLimpiar.addEventListener('click', () => {
+      nombreInput.value = '';
+      emailInput.value = '';
+      mensajeInput.value = '';
+      respuestaDiv.textContent = '';
+    });
+
+    // Inicializar UI
+    renderLista();
+
+    // Mostrar usuario (refuerzo)
+    const usuario = localStorage.getItem('usuarioMemeflix');
+    document.querySelectorAll('.usuario').forEach(el => el.textContent = usuario ? ` _ ${usuario}` : 'Invitado');
+
+    // Accesibilidad: focus en primer campo al cargar
+    nombreInput.focus();
+
+    // Guardar sugerencias automáticamente si el usuario abandona el formulario (auto-save simple)
+    window.addEventListener('beforeunload', () => {
+      const draft = {
+        nombre: nombreInput.value.trim(),
+        email: emailInput.value.trim(),
+        mensaje: mensajeInput.value.trim()
+      };
+      localStorage.setItem('sugerenciasDraft', JSON.stringify(draft));
+    });
+
+    // Restaurar draft si existe
+    (function restoreDraft(){
+      try {
+        const raw = localStorage.getItem('sugerenciasDraft');
+        if(!raw) return;
+        const d = JSON.parse(raw);
+        if(d.nombre) nombreInput.value = d.nombre;
+        if(d.email) emailInput.value = d.email;
+        if(d.mensaje) mensajeInput.value = d.mensaje;
+      } catch {}
+    })();
+
+  })();
   </script>
-  <script>
-  function enviarSugerencia() {
-    const v = parseInt(localStorage.getItem("sugerenciasEnviadas") || "0", 10) + 1;
-    localStorage.setItem("sugerenciasEnviadas", v);
-  }
-</script>
 </body>
 </html>
+
+
 
 
