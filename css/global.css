@@ -4,3 +4,21 @@
   object-fit: cover;  /* recorta y ajusta manteniendo proporción */
   display: block;     /* elimina espacios raros de inline */
 }
+
+.navbar {
+  background-color: #111;
+  padding: 15px;
+  text-align: center;
+}
+
+.navbar a {
+  color: #fff;
+  text-decoration: none;
+  margin: 0 15px;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.navbar a:hover {
+  color: #e50914; /* rojo Netflix */
+}
