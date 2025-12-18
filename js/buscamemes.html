@@ -6,24 +6,40 @@
   <title>Memeflix - Buscaminas</title>
   <link rel="stylesheet" href="../css/main.css" />
   <style>
-    .game-shell { padding: calc(var(--nav-height) + 20px) 16px 60px; min-height:100vh; display:flex;flex-direction:column;gap:18px; align-items:center; }
-    .game-panel { width:100%; max-width:1100px; display:flex; gap:18px; flex-wrap:wrap; align-items:flex-start; justify-content:center; }
-    .controls { min-width:260px; max-width:320px; width:100%; display:flex; flex-direction:column; gap:12px; }
+    /* Vista y HUD */
+    .shell { padding: calc(var(--nav-height) + 20px) 16px 60px; min-height:100vh; display:flex; flex-direction:column; gap:18px; align-items:center; }
+    .panel { width:100%; max-width:1200px; display:flex; gap:18px; flex-wrap:wrap; align-items:flex-start; justify-content:center; }
+    .controls { min-width:280px; max-width:340px; width:100%; display:flex; flex-direction:column; gap:12px; }
     .group { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
     .hud { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
     .hud .stat { background:var(--glass-bg); border:1px solid var(--glass-border); padding:10px 12px; border-radius:10px; min-width:90px; text-align:center; }
-    #tablero-wrap { flex:1 1 560px; display:flex; flex-direction:column; align-items:center; gap:12px; }
-    #tablero { display:grid; gap:0; background:transparent; padding:6px; border-radius:10px; outline:none; }
-    .celda { width:var(--cell-size); height:var(--cell-size); display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.08); background:#1b1b1b;color:#fff;cursor:pointer; user-select:none; font-weight:700; font-family:monospace; }
-    .celda.revelada { background:#2f2f2f; cursor:default; }
-    .celda.flag { background:linear-gradient(180deg, rgba(229,9,20,0.12), rgba(229,9,20,0.06)); color:var(--accent-red); }
     .estado { min-height:40px; color:var(--muted); font-weight:700; text-align:center; }
     .level-btn.active { outline:2px solid var(--matrix-green); }
-    .toast { position:fixed; right:16px; bottom:16px; background:rgba(0,0,0,0.85); color:var(--text); border:1px solid var(--glass-border); padding:12px 16px; border-radius:10px; box-shadow:0 8px 30px rgba(0,0,0,0.6); z-index:1600; display:none; }
+
+    /* Tablero */
+    #boardWrap { flex:1 1 620px; display:flex; flex-direction:column; align-items:center; gap:12px; }
+    #board { display:grid; gap:0; background:transparent; padding:6px; border-radius:10px; outline:none; }
+    .cell { width:var(--cell-size); height:var(--cell-size); display:flex; align-items:center; justify-content:center;
+            border:1px solid rgba(255,255,255,0.08); background:#1b1b1b; color:#fff; cursor:pointer;
+            user-select:none; font-weight:800; font-family:monospace; transition: background .14s ease, transform .12s ease; }
+    .cell:hover { transform: translateY(-1px); }
+    .cell.revealed { background:#2f2f2f; cursor:default; }
+    .cell.flag { background:linear-gradient(180deg, rgba(229,9,20,0.12), rgba(229,9,20,0.06)); color:var(--accent-red); }
+    .cell.meme { color:#e50914; }
+
+    /* Colores de números clásico */
+    .n1 { color:#00a0ff } .n2 { color:#00c443 } .n3 { color:#ff5500 } .n4 { color:#b300ff }
+    .n5 { color:#ff0066 } .n6 { color:#00ffd1 } .n7 { color:#ffd700 } .n8 { color:#cccccc }
+
+    /* Toast */
+    .toast { position:fixed; right:16px; bottom:16px; background:rgba(0,0,0,0.85); color:var(--text);
+             border:1px solid var(--glass-border); padding:12px 16px; border-radius:10px;
+             box-shadow:0 8px 30px rgba(0,0,0,0.6); z-index:1600; display:none; }
+
     @media (max-width:900px){
-      .game-panel { flex-direction:column-reverse; align-items:stretch; }
+      .panel { flex-direction:column-reverse; align-items:stretch; }
       .controls { max-width:100%; order:2; }
-      #tablero-wrap { order:1; }
+      #boardWrap { order:1; }
     }
   </style>
 </head>
@@ -35,58 +51,60 @@
     <button class="menu-toggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
     <nav aria-label="Menú principal">
       <ul class="nav-links" role="menubar">
-        <li role="none"><a role="menuitem" href="../home.html">Inicio</a></li>
-        <li role="none"><a role="menuitem" href="../memes.html">Memes</a></li>
-        <li role="none"><a role="menuitem" href="../sugerencias.html">Sugerencias</a></li>
-        <li role="none"><a role="menuitem" href="../minijuegos.html" class="active">Minijuegos</a></li>
+        <li role="none"><a role="menuitem" href="./home.html">Inicio</a></li>
+        <li role="none"><a role="menuitem" href="./memes.html">Memes</a></li>
+        <li role="none"><a role="menuitem" href="./sugerencias.html">Sugerencias</a></li>
+        <li role="none"><a role="menuitem" href="./minijuegos.html" class="active">Minijuegos</a></li>
       </ul>
     </nav>
     <div class="nav-right page-layer">
       <div class="usuario" aria-live="polite"></div>
-      <a class="btn ghost" href="../STAFF/staff.html">Staff</a>
+      <a class="btn ghost" href="./STAFF/staff.html">Staff</a>
     </div>
   </header>
 
-  <main class="page-layer game-shell" id="mainContent">
+  <main class="page-layer shell" id="mainContent">
     <div class="container" style="width:100%;max-width:1200px">
       <h1 style="text-align:center;margin:0 0 6px">Buscaminas <span class="highlight">Memeflix</span></h1>
-      <p style="text-align:center;color:var(--muted);margin:0 0 18px">Clic izquierdo: revelar · Clic derecho: bandera · Móvil: toque y toque largo.</p>
+      <p style="text-align:center;color:var(--muted);margin:0 0 18px">
+        Clic izquierdo: revelar · Clic derecho: bandera · Móvil: toque corto (revelar) y toque largo (bandera).
+      </p>
 
-      <div class="game-panel">
+      <div class="panel">
         <!-- Controles y HUD -->
         <aside class="controls" aria-label="Controles del juego">
           <div class="group">
-            <button id="btnFacil" class="btn level-btn" type="button">Fácil</button>
-            <button id="btnIntermedio" class="btn level-btn" type="button">Intermedio</button>
-            <button id="btnSix" class="btn level-btn" type="button">Six Seveeeen</button>
+            <button id="btnEasy" class="btn level-btn" type="button">Fácil</button>
+            <button id="btnMedium" class="btn level-btn" type="button">Intermedio</button>
+            <button id="btnHard" class="btn level-btn" type="button">Six Seveeeen</button>
           </div>
 
           <div class="group hud" role="status" aria-live="polite">
             <div class="stat">
               <div style="font-size:0.85rem;color:var(--muted)">Nivel</div>
-              <div id="nivelActual" style="font-size:1.1rem;color:var(--accent-red)">-</div>
+              <div id="hudLevel" style="font-size:1.1rem;color:var(--accent-red)">-</div>
             </div>
             <div class="stat">
               <div style="font-size:0.85rem;color:var(--muted)">Tiempo</div>
-              <div id="timer" style="font-size:1.1rem">00:00</div>
+              <div id="hudTimer" style="font-size:1.1rem">00:00</div>
             </div>
             <div class="stat">
               <div style="font-size:0.85rem;color:var(--muted)">Seguras</div>
-              <div id="safeLeft" style="font-size:1.1rem">-</div>
+              <div id="hudSafe" style="font-size:1.1rem">-</div>
             </div>
           </div>
 
           <div class="group">
-            <button id="btnReiniciar" class="btn" type="button" disabled>Reiniciar</button>
-            <a class="btn ghost" href="../minijuegos.html">Volver</a>
+            <button id="btnReset" class="btn" type="button" disabled>Reiniciar</button>
+            <a class="btn ghost" href="./minijuegos.html">Volver</a>
           </div>
 
-          <div class="estado" id="estado" role="status" aria-live="polite">Selecciona un nivel para comenzar.</div>
+          <div class="estado" id="hudState" role="status" aria-live="polite">Selecciona un nivel para comenzar.</div>
         </aside>
 
         <!-- Tablero -->
-        <section id="tablero-wrap" aria-label="Tablero de juego">
-          <div id="tablero" role="grid" aria-label="Tablero Buscaminas" tabindex="0"></div>
+        <section id="boardWrap" aria-label="Tablero de juego">
+          <div id="board" role="grid" aria-label="Tablero Buscaminas" tabindex="0"></div>
           <div style="text-align:center;color:var(--muted);font-size:0.9rem">Consejo: en móvil usa toque para revelar y toque largo para marcar bandera.</div>
         </section>
       </div>
@@ -101,23 +119,31 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-  <!-- Scripts: desde /js/ -->
+  <!-- Scripts: usa las rutas relativas dentro de js/ -->
   <script src="./matrix.js"></script>
   <script src="./main.js"></script>
-  <script src="./buscamemes.js"></script>
+  <script src="./buscameemes.js"></script> <!-- ojo: nombre con doble 'e' según tu carpeta -->
 
   <script>
   (function(){
     const btns = {
-      facil: document.getElementById('btnFacil'),
-      intermedio: document.getElementById('btnIntermedio'),
-      sixseveeeen: document.getElementById('btnSix')
+      facil: document.getElementById('btnEasy'),
+      intermedio: document.getElementById('btnMedium'),
+      sixseveeeen: document.getElementById('btnHard')
     };
-    const btnReiniciar = document.getElementById('btnReiniciar');
-    const nivelEl = document.getElementById('nivelActual');
-    const estadoEl = document.getElementById('estado');
-    const tableroEl = document.getElementById('tablero');
+    const hud = {
+      level: document.getElementById('hudLevel'),
+      timer: document.getElementById('hudTimer'),
+      safe: document.getElementById('hudSafe'),
+      state: document.getElementById('hudState')
+    };
+    const board = document.getElementById('board');
+    const btnReset = document.getElementById('btnReset');
     const toast = document.getElementById('toast');
+
+    // Mostrar usuario
+    const usuario = localStorage.getItem('usuarioMemeflix');
+    document.querySelectorAll('.usuario').forEach(el => el.textContent = usuario ? ` _ ${usuario}` : 'Invitado');
 
     function showToast(text, ms = 2000){
       toast.textContent = text;
@@ -125,60 +151,95 @@
       setTimeout(()=> { toast.style.display = 'none'; }, ms);
     }
 
-    function setActive(levelKey){
+    function setActive(key){
       Object.entries(btns).forEach(([k,btn]) => {
-        btn.classList.toggle('active', k === levelKey);
-        btn.setAttribute('aria-pressed', k === levelKey ? 'true' : 'false');
+        const active = k === key;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-pressed', active ? 'true' : 'false');
       });
-      nivelEl.textContent = (
-        levelKey === 'facil' ? 'Fácil' :
-        levelKey === 'intermedio' ? 'Intermedio' : 'Six Seveeeen'
-      );
+      hud.level.textContent = key === 'facil' ? 'Fácil' : key === 'intermedio' ? 'Intermedio' : 'Six Seveeeen';
     }
 
-    // Bind niveles
-    btns.facil.addEventListener('click', () => { setActive('facil'); iniciarJuego('facil'); estadoEl.textContent = '¡Juego iniciado (Fácil)!'; });
-    btns.intermedio.addEventListener('click', () => { setActive('intermedio'); iniciarJuego('intermedio'); estadoEl.textContent = '¡Juego iniciado (Intermedio)!'; });
-    btns.sixseveeeen.addEventListener('click', () => { setActive('sixseveeeen'); iniciarJuego('sixseveeeen'); estadoEl.textContent = '¡Juego iniciado (Six Seveeeen)!'; });
+    // Inicialización fuerte: conectar UI para el motor
+    window.BuscaminesUI = {
+      boardEl: board,
+      hud,
+      btnReset,
+      showToast
+    };
 
-    // Reiniciar
-    btnReiniciar.addEventListener('click', () => { reiniciarNivel(); showToast('Nivel reiniciado'); });
+    // Enlazar botones a la API del motor (buscameemes.js)
+    btns.facil.addEventListener('click', () => { setActive('facil'); window.Buscamines.start('facil'); });
+    btns.intermedio.addEventListener('click', () => { setActive('intermedio'); window.Buscamines.start('intermedio'); });
+    btns.sixseveeeen.addEventListener('click', () => { setActive('sixseveeeen'); window.Buscamines.start('sixseveeeen'); });
+    btnReset.addEventListener('click', () => { window.Buscamines.reset(); showToast('Nivel reiniciado'); });
 
     // Accesibilidad teclado
-    tableroEl.addEventListener('keydown', (e) => {
+    board.addEventListener('keydown', (e) => {
       const focused = document.activeElement;
-      if(!focused || !focused.classList.contains('celda')) return;
+      if(!focused || !focused.classList.contains('cell')) return;
       if(e.key === 'Enter') focused.click();
       if(e.key === ' ') { e.preventDefault(); focused.dispatchEvent(new Event('contextmenu', { bubbles: true, cancelable: true })); }
     });
 
     // Touch largo -> bandera
     (function(){
-      let touchTimer = null;
-      tableroEl.addEventListener('touchstart', e => {
-        const t = e.target.closest('.celda');
+      let tTimer = null;
+      board.addEventListener('touchstart', e => {
+        const t = e.target.closest('.cell');
         if(!t) return;
-        touchTimer = setTimeout(() => {
+        tTimer = setTimeout(() => {
           t.dispatchEvent(new Event('contextmenu', { bubbles: true, cancelable: true }));
-          touchTimer = null;
+          tTimer = null;
         }, 500);
       }, { passive: true });
-      tableroEl.addEventListener('touchend', e => {
-        if(touchTimer){
-          clearTimeout(touchTimer);
-          touchTimer = null;
-          const t = e.target.closest('.celda');
+      board.addEventListener('touchend', e => {
+        if(tTimer){
+          clearTimeout(tTimer);
+          tTimer = null;
+          const t = e.target.closest('.cell');
           if(t) t.click();
         }
       }, { passive: true });
-      document.addEventListener('contextmenu', e => { if(e.target.closest('#tablero')) e.preventDefault(); });
+      document.addEventListener('contextmenu', e => { if(e.target.closest('#board')) e.preventDefault(); });
     })();
 
-    // Usuario en header
-    const usuario = localStorage.getItem('usuarioMemeflix');
-    document.querySelectorAll('.usuario').forEach(el => el.textContent = usuario ? ` _ ${usuario}` : 'Invitado');
+    // Diagnóstico: si no está el motor, renderizar demo en 200ms
+    setTimeout(() => {
+      if(!window.Buscamines || typeof window.Buscamines.start !== 'function'){
+        hud.state.textContent = 'No se ha cargado el motor del juego. Revisa la ruta ./buscameemes.js';
+        renderDemoBoard();
+      }
+    }, 200);
+
+    function renderDemoBoard(){
+      const cols = 9, rows = 9;
+      board.style.gridTemplateColumns = `repeat(${cols}, var(--cell-size))`;
+      board.innerHTML = '';
+      for(let y=0;y<rows;y++){
+        for(let x=0;x<cols;x++){
+          const c = document.createElement('button');
+          c.className = 'cell';
+          c.type = 'button';
+          c.setAttribute('aria-label', `Celda ${x+1},${y+1}`);
+          c.addEventListener('click', () => {
+            c.classList.add('revealed');
+            const n = (Math.random() < 0.12) ? '💣' : Math.floor(Math.random()*3) || '';
+            c.textContent = n;
+          });
+          c.addEventListener('contextmenu', (ev) => {
+            ev.preventDefault();
+            c.classList.toggle('flag');
+            c.textContent = c.classList.contains('flag') ? '⚑' : '';
+          });
+          board.appendChild(c);
+        }
+      }
+      btnReset.disabled = false;
+    }
   })();
   </script>
 </body>
 </html>
+
 
