@@ -9,6 +9,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- CSS externo -->
   <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/global.css">
 </head>
 <body>
   <!-- Fondo Matrix -->
@@ -37,18 +38,26 @@
   <section class="novedades">
     <h2 class="section-title">🔥 Novedades</h2>
     <div class="grid">
-      <div class="card"><img src="imagenes/meme1.jpg" alt="Meme 1"></div>
-      <div class="card"><img src="imagenes/meme2.jpg" alt="Meme 2"></div>
-      <div class="card"><img src="imagenes/meme3.jpg" alt="Meme 3"></div>
-      <div class="card"><img src="imagenes/meme4.jpg" alt="Meme 4"></div>
+      <div class="card"><img src="imagenes/elpico.jpg" alt="Meme 1" class="meme-img"></div>
+      <div class="card"><img src="imagenes/osfollareconlapoya.jpg" alt="Meme 2" class="meme-img"></div>
+      <div class="card"><img src="imagenes/serie1.jpg" alt="Meme 3" class="meme-img"></div>
+      <div class="card"><img src="imagenes/mono.jpg" alt="Meme 4" class="meme-img"></div>
       <!-- Añade más memes según necesites -->
     </div>
   </section>
 
   <!-- Footer -->
-  <footer>
-    <p>© 2025 Memeflix - Jaime Muñoz Nicolás</p>
-  </footer>
+<footer>
+  <p>© 2025 Memeflix - Jaime Muñoz Nicolás</p>
+  <p><a href="STAFF/staff.html" class="staff-link" id="staffLink">Acceso Staff</a></p>
+</footer>
+
+<script>
+  // Pase temporal para acceder a Staff solo desde el índice
+  document.getElementById('staffLink').addEventListener('click', () => {
+    sessionStorage.setItem('staffEntry', 'fromIndex');
+  });
+</script>
 
   <script>
     // Fondo Matrix
@@ -89,4 +98,5 @@
   </script>
 </body>
 </html>
+
 
