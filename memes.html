@@ -98,6 +98,15 @@
       sessionStorage.setItem('staffEntry', 'fromIndex');
     });
   </script>
+  <script>
+  function inc(key) {
+    const v = parseInt(localStorage.getItem(key) || "0", 10) + 1;
+    localStorage.setItem(key, v);
+  }
+  // Ejemplo: cada vez que se carga un lote de memes
+  inc("memesVistos");
+</script>
 </body>
 </html>
+
 
