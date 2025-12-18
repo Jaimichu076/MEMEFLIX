@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Memeflix - Staff</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <style>
+    /* Ajustes específicos Staff */
+    .staff-shell { padding: calc(var(--nav-height) + 20px) 16px 60px; min-height:100vh; display:flex;flex-direction:column;gap:18px; align-items:center; }
+    .staff-access { width:100%; max-width:720px; display:flex;justify-content:center; }
+    .card.staff-card { width:100%; padding:20px; border-radius:12px; background:var(--glass-bg); border:1px solid var(--glass-border); box-shadow:0 10px 30px rgba(0,0,0,0.6); }
+    .card.staff-card h2 { margin:0 0 12px; color:var(--accent-red) }
+    .card.staff-card .hint { color:var(--muted); margin-top:8px }
+    .panel { width:100%; max-width:980px; margin-top:12px; display:grid; gap:12px; grid-template-columns:1fr; }
+    .panel .option { display:block; padding:12px; border-radius:10px; background:#111; color:var(--text); text-decoration:none; border:1px solid rgba(255,255,255,0.03) }
+    .panel .option:hover { transform:translateY(-4px); box-shadow:0 8px 30px rgba(0,255,0,0.06) }
+    .staff-footer { margin-top:18px; color:var(--muted); text-align:center }
+    @media(min-width:900px){ .panel { grid-template-columns:repeat(2,1fr) } }
+  </style>
+</head>
+<body>
+  <canvas id="matrix" aria-hidden="true"></canvas>
+
+  <header class="navbar page-layer" role="banner">
+    <div class="logo">MEMEFLIX</div>
+    <button class="menu-toggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
+    <nav aria-label="Menú principal">
+      <ul class="nav-links" role="menubar">
+        <li role="none"><a role="menuitem" href="../home.html">Inicio</a></li>
+        <li role="none"><a role="menuitem" href="../memes.html">Memes</a></li>
+        <li role="none"><a role="menuitem" href="../sugerencias.html">Sugerencias</a></li>
+        <li role="none"><a role="menuitem" href="../minijuegos.html">Minijuegos</a></li>
+      </ul>
+    </nav>
+    <div class="nav-right page-layer">
+      <div class="usuario" aria-live="polite"></div>
+      <a class="btn ghost" href="estadisticas.html">Estadísticas</a>
+    </div>
+  </header>
+
+  <main class="page-layer staff-shell">
+    <div class="container">
+      <div class="staff-access">
+        <div class="card staff-card">
+          <h2>Acceso Staff</h2>
+          <p class="hint">Acceso restringido. Si llegaste desde la página principal se te permitirá entrar automáticamente.</p>
+
+          <div id="accessArea" style="margin-top:12px">
+            <form id="staffForm" style="display:flex;flex-direction:column;gap:10px">
+              <input id="staffUser" type="text" placeholder="Usuario staff" autocomplete="username" required>
+              <input id="staffPass" type="password" placeholder="Contraseña" autocomplete="current-password" required>
+              <div style="display:flex;gap:8px">
+                <button class="btn" type="submit">Entrar</button>
+                <button id="btnCancel" type="button" class="btn ghost">Volver</button>
+              </div>
+              <div id="staffMsg" class="hint" aria-live="polite"></div>
+            </form>
+          </div>
+
+          <div id="panelArea" style="display:none;margin-top:12px">
+            <div class="hint">Bienvenido al panel Staff. Usa las opciones para revisar estadísticas y sugerencias.</div>
+            <div class="panel" style="margin-top:12px">
+              <a class="option" href="estadisticas.html">Ver Estadísticas</a>
+              <a class="option" href="sugerenciasresultados.html">Ver Sugerencias</a>
+              <a class="option" href="../minijuegos.html">Gestionar Minijuegos</a>
+              <a class="option" href="../memes.html">Gestionar Memes</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="staff-footer">
+        <p>Memeflix · Panel Staff · © 2025 Jaime Muñoz Nicolás</p>
+      </div>
+    </div>
+  </main>
+
+  <script src="../js/matrix.js"></script>
+  <script src="../js/main.js"></script>
+  <script>
+    // Staff access logic: no servidor, control por sessionStorage/localStorage
+    (function(){
+      const staffForm = document.getElementById('staffForm');
+      const staffMsg = document.getElementById('staffMsg');
+      const panelArea = document.getElementById('panelArea');
+      const accessArea = document.getElementById('accessArea');
+      const btnCancel = document.getElementById('btnCancel');
+
+      // Si la navegación vino desde index/home con permiso, permitimos acceso
+      const allowed = sessionStorage.getItem('staffEntry') === 'fromIndex';
+
+      function showPanel(){
+        accessArea.style.display = 'none';
+        panelArea.style.display = 'block';
+        staffMsg.textContent = '';
+      }
+
+      function showForm(){
+        accessArea.style.display = '';
+        panelArea.style.display = 'none';
+      }
+
+      // Si allowed, mostrar panel sin pedir credenciales
+      if(allowed){
+        showPanel();
+        // limpiar la marca para evitar reuso
+        sessionStorage.removeItem('staffEntry');
+      }
+
+      staffForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const u = document.getElementById('staffUser').value.trim();
+        const p = document.getElementById('staffPass').value.trim();
+        if(!u || !p){
+          staffMsg.textContent = 'Rellena usuario y contraseña.';
+          return;
+        }
+        // Demo: validación local simple. No uses esto en producción.
+        const staffCreds = JSON.parse(localStorage.getItem('staffCreds') || '[]');
+        // Si no hay credenciales guardadas, aceptamos cualquier par y lo guardamos como demo
+        if(staffCreds.length === 0){
+          localStorage.setItem('staffCreds', JSON.stringify([{user:u,pass:p}]));
+          staffMsg.textContent = 'Credenciales guardadas localmente. Acceso concedido.';
+          showPanel();
+          return;
+        }
+        const ok = staffCreds.some(s => s.user === u && s.pass === p);
+        if(ok){
+          staffMsg.textContent = 'Acceso concedido.';
+          showPanel();
+        } else {
+          staffMsg.textContent = 'Credenciales incorrectas.';
+        }
+      });
+
+      btnCancel.addEventListener('click', () => {
+        window.location.href = '../home.html';
+      });
+
+      // Mostrar usuario en header
+      const usuario = localStorage.getItem('usuarioMemeflix');
+      document.querySelectorAll('.usuario').forEach(el => el.textContent = usuario ? ` _ ${usuario}` : 'Invitado');
+    })();
+  </script>
+</body>
+</html>
