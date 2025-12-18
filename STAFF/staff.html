@@ -1,22 +1,20 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Memeflix - Staff</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Memeflix - Staff (Acceso)</title>
   <link rel="stylesheet" href="../css/main.css">
   <style>
-    /* Ajustes específicos Staff */
+    /* Ajustes locales */
     .staff-shell { padding: calc(var(--nav-height) + 20px) 16px 60px; min-height:100vh; display:flex;flex-direction:column;gap:18px; align-items:center; }
-    .staff-access { width:100%; max-width:720px; display:flex;justify-content:center; }
-    .card.staff-card { width:100%; padding:20px; border-radius:12px; background:var(--glass-bg); border:1px solid var(--glass-border); box-shadow:0 10px 30px rgba(0,0,0,0.6); }
-    .card.staff-card h2 { margin:0 0 12px; color:var(--accent-red) }
-    .card.staff-card .hint { color:var(--muted); margin-top:8px }
-    .panel { width:100%; max-width:980px; margin-top:12px; display:grid; gap:12px; grid-template-columns:1fr; }
-    .panel .option { display:block; padding:12px; border-radius:10px; background:#111; color:var(--text); text-decoration:none; border:1px solid rgba(255,255,255,0.03) }
-    .panel .option:hover { transform:translateY(-4px); box-shadow:0 8px 30px rgba(0,255,0,0.06) }
-    .staff-footer { margin-top:18px; color:var(--muted); text-align:center }
-    @media(min-width:900px){ .panel { grid-template-columns:repeat(2,1fr) } }
+    .card.staff-card { width:100%; max-width:720px; padding:20px; border-radius:12px; background:var(--glass-bg); border:1px solid var(--glass-border); box-shadow:0 10px 30px rgba(0,0,0,0.6); }
+    .hint { color:var(--muted); margin-top:8px }
+    .controls { display:flex;gap:8px;flex-wrap:wrap }
+    .danger { color:#ff6b6b }
+    .small { font-size:0.9rem; color:var(--muted) }
+    .option { display:block; padding:12px; border-radius:10px; background:#111; color:var(--text); text-decoration:none; border:1px solid rgba(255,255,255,0.03); margin-bottom:8px }
+    .option:hover { transform:translateY(-4px); box-shadow:0 8px 30px rgba(0,255,0,0.06) }
   </style>
 </head>
 <body>
@@ -41,108 +39,185 @@
 
   <main class="page-layer staff-shell">
     <div class="container">
-      <div class="staff-access">
-        <div class="card staff-card">
-          <h2>Acceso Staff</h2>
-          <p class="hint">Acceso restringido. Si llegaste desde la página principal se te permitirá entrar automáticamente.</p>
+      <div class="card staff-card" id="cardRoot">
+        <h2 id="cardTitle" style="margin:0 0 8px;color:var(--accent-red)">Acceso Staff</h2>
 
-          <div id="accessArea" style="margin-top:12px">
-            <form id="staffForm" style="display:flex;flex-direction:column;gap:10px">
-              <input id="staffUser" type="text" placeholder="Usuario staff" autocomplete="username" required>
-              <input id="staffPass" type="password" placeholder="Contraseña" autocomplete="current-password" required>
-              <div style="display:flex;gap:8px">
-                <button class="btn" type="submit">Entrar</button>
-                <button id="btnCancel" type="button" class="btn ghost">Volver</button>
-              </div>
-              <div id="staffMsg" class="hint" aria-live="polite"></div>
-            </form>
+        <p id="intro" class="hint">Acceso restringido. Introduce la contraseña para acceder al panel Staff.</p>
+
+        <!-- Formulario de login (único) -->
+        <form id="loginForm" style="display:none" autocomplete="current-password">
+          <label class="small">Contraseña</label>
+          <input id="loginPass" type="password" placeholder="Contraseña" required>
+          <div class="controls" style="margin-top:8px">
+            <button class="btn" type="submit">Entrar</button>
+            <button id="cancelBtn" type="button" class="btn ghost">Volver</button>
           </div>
+          <div id="loginMsg" class="hint"></div>
+        </form>
 
-          <div id="panelArea" style="display:none;margin-top:12px">
-            <div class="hint">Bienvenido al panel Staff. Usa las opciones para revisar estadísticas y sugerencias.</div>
-            <div class="panel" style="margin-top:12px">
-              <a class="option" href="estadisticas.html">Ver Estadísticas</a>
-              <a class="option" href="sugerenciasresultados.html">Ver Sugerencias</a>
-              <a class="option" href="../minijuegos.html">Gestionar Minijuegos</a>
-              <a class="option" href="../memes.html">Gestionar Memes</a>
+        <!-- Panel tras login -->
+        <div id="panelArea" style="display:none;margin-top:12px">
+          <div class="hint">Bienvenido al panel Staff. Usa las opciones para revisar estadísticas y sugerencias.</div>
+          <div style="margin-top:12px;display:grid;gap:12px">
+            <a class="option" href="estadisticas.html">Ver Estadísticas</a>
+            <a class="option" href="sugerenciasresultados.html">Ver Sugerencias</a>
+            <a class="option" href="../minijuegos.html">Gestionar Minijuegos</a>
+            <a class="option" href="../memes.html">Gestionar Memes</a>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button id="logoutBtn" class="btn small danger">Cerrar sesión</button>
             </div>
           </div>
-
         </div>
+
       </div>
 
-      <div class="staff-footer">
-        <p>Memeflix · Panel Staff · © 2025 Jaime Muñoz Nicolás</p>
+      <div style="margin-top:12px;text-align:center" class="small">
+        <p>Nota: la contraseña es obligatoria y está fijada por el sistema. Esta implementación es cliente‑side y no sustituye un backend seguro.</p>
       </div>
     </div>
   </main>
 
   <script src="../js/matrix.js"></script>
   <script src="../js/main.js"></script>
+
   <script>
-    // Staff access logic: no servidor, control por sessionStorage/localStorage
-    (function(){
-      const staffForm = document.getElementById('staffForm');
-      const staffMsg = document.getElementById('staffMsg');
-      const panelArea = document.getElementById('panelArea');
-      const accessArea = document.getElementById('accessArea');
-      const btnCancel = document.getElementById('btnCancel');
+  // STAFF access con contraseña fija (cliente-side)
+  (function(){
+    // Configuración
+    const FIXED_PASSWORD = 'kneeguard'; // contraseña fija solicitada
+    const SESSION_KEY = 'staffAuth';     // sessionStorage flag con expiry
+    const MAX_ATTEMPTS = 5;
+    const SESSION_MINUTES = 30;
+    const ATTEMPTS_KEY = 'staffAttempts';
+    const LOCK_KEY = 'staffLockUntil';
 
-      // Si la navegación vino desde index/home con permiso, permitimos acceso
-      const allowed = sessionStorage.getItem('staffEntry') === 'fromIndex';
+    // DOM
+    const loginForm = document.getElementById('loginForm');
+    const loginPass = document.getElementById('loginPass');
+    const loginMsg = document.getElementById('loginMsg');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const panelArea = document.getElementById('panelArea');
+    const logoutBtn = document.getElementById('logoutBtn');
 
-      function showPanel(){
-        accessArea.style.display = 'none';
-        panelArea.style.display = 'block';
-        staffMsg.textContent = '';
-      }
+    // Session helpers
+    function setSession(){
+      const expiry = Date.now() + SESSION_MINUTES * 60 * 1000;
+      sessionStorage.setItem(SESSION_KEY, String(expiry));
+    }
+    function clearSession(){
+      sessionStorage.removeItem(SESSION_KEY);
+    }
+    function isSessionValid(){
+      const v = sessionStorage.getItem(SESSION_KEY);
+      if(!v) return false;
+      return Date.now() < parseInt(v,10);
+    }
 
-      function showForm(){
-        accessArea.style.display = '';
-        panelArea.style.display = 'none';
-      }
+    // Attempts helpers
+    function incAttempts(){
+      const v = parseInt(localStorage.getItem(ATTEMPTS_KEY) || '0', 10) + 1;
+      localStorage.setItem(ATTEMPTS_KEY, String(v));
+      return v;
+    }
+    function resetAttempts(){ localStorage.removeItem(ATTEMPTS_KEY); }
 
-      // Si allowed, mostrar panel sin pedir credenciales
-      if(allowed){
-        showPanel();
-        // limpiar la marca para evitar reuso
-        sessionStorage.removeItem('staffEntry');
-      }
+    // Lock helpers
+    function setLock(minutes){
+      const until = Date.now() + minutes * 60 * 1000;
+      localStorage.setItem(LOCK_KEY, String(until));
+    }
+    function getLock(){
+      return parseInt(localStorage.getItem(LOCK_KEY) || '0', 10);
+    }
+    function clearLock(){ localStorage.removeItem(LOCK_KEY); }
 
-      staffForm.addEventListener('submit', e => {
-        e.preventDefault();
-        const u = document.getElementById('staffUser').value.trim();
-        const p = document.getElementById('staffPass').value.trim();
-        if(!u || !p){
-          staffMsg.textContent = 'Rellena usuario y contraseña.';
-          return;
-        }
-        // Demo: validación local simple. No uses esto en producción.
-        const staffCreds = JSON.parse(localStorage.getItem('staffCreds') || '[]');
-        // Si no hay credenciales guardadas, aceptamos cualquier par y lo guardamos como demo
-        if(staffCreds.length === 0){
-          localStorage.setItem('staffCreds', JSON.stringify([{user:u,pass:p}]));
-          staffMsg.textContent = 'Credenciales guardadas localmente. Acceso concedido.';
-          showPanel();
-          return;
-        }
-        const ok = staffCreds.some(s => s.user === u && s.pass === p);
-        if(ok){
-          staffMsg.textContent = 'Acceso concedido.';
-          showPanel();
-        } else {
-          staffMsg.textContent = 'Credenciales incorrectas.';
-        }
-      });
+    // UI helpers
+    function showLogin(){ loginForm.style.display = ''; panelArea.style.display = 'none'; loginMsg.textContent = ''; }
+    function showPanel(){ loginForm.style.display = 'none'; panelArea.style.display = ''; loginMsg.textContent = ''; }
 
-      btnCancel.addEventListener('click', () => {
-        window.location.href = '../home.html';
-      });
-
-      // Mostrar usuario en header
+    // Inicialización
+    function initUI(){
+      // mostrar usuario en header
       const usuario = localStorage.getItem('usuarioMemeflix');
       document.querySelectorAll('.usuario').forEach(el => el.textContent = usuario ? ` _ ${usuario}` : 'Invitado');
-    })();
+
+      // si sesión válida, mostrar panel
+      if(isSessionValid()){
+        showPanel();
+        return;
+      }
+
+      // comprobar bloqueo temporal
+      const lockUntil = getLock();
+      if(lockUntil && Date.now() < lockUntil){
+        const remaining = Math.ceil((lockUntil - Date.now()) / 1000);
+        showLogin();
+        loginMsg.textContent = `Bloqueado temporalmente. Intenta de nuevo en ${remaining} s.`;
+        loginForm.querySelector('button[type="submit"]').disabled = true;
+        setTimeout(() => {
+          loginForm.querySelector('button[type="submit"]').disabled = false;
+          clearLock();
+          resetAttempts();
+          loginMsg.textContent = '';
+        }, lockUntil - Date.now());
+        return;
+      }
+
+      showLogin();
+    }
+
+    // Login submit
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      loginMsg.textContent = '';
+      const p = loginPass.value || '';
+      if(p === FIXED_PASSWORD){
+        resetAttempts();
+        clearLock();
+        setSession();
+        loginPass.value = '';
+        showPanel();
+      } else {
+        const attempts = incAttempts();
+        const left = Math.max(0, MAX_ATTEMPTS - attempts);
+        loginMsg.textContent = `Contraseña incorrecta. Intentos restantes: ${left}.`;
+        if(attempts >= MAX_ATTEMPTS){
+          loginMsg.textContent = 'Demasiados intentos. Bloqueo temporal activado (5 minutos).';
+          setLock(5); // 5 minutos
+          loginForm.querySelector('button[type="submit"]').disabled = true;
+          setTimeout(() => {
+            loginForm.querySelector('button[type="submit"]').disabled = false;
+            resetAttempts();
+            clearLock();
+            loginMsg.textContent = '';
+          }, 5 * 60 * 1000);
+        }
+      }
+    });
+
+    // Cancel / volver
+    cancelBtn.addEventListener('click', () => {
+      window.location.href = '../home.html';
+    });
+
+    // Logout
+    logoutBtn.addEventListener('click', () => {
+      clearSession();
+      showLogin();
+    });
+
+    // Inicializar UI al cargar
+    initUI();
+
+    // Mantener sesión válida si se abre en otra pestaña
+    window.addEventListener('storage', (e) => {
+      if(e.key === SESSION_KEY){
+        if(isSessionValid()) showPanel(); else showLogin();
+      }
+    });
+
+  })();
   </script>
 </body>
 </html>
+
