@@ -59,14 +59,32 @@
     setInterval(draw, 33);
 
     // Login
-    document.getElementById("loginForm").addEventListener("submit", e => {
-      e.preventDefault();
-      const usuario = document.getElementById("usuario").value.trim();
-      const password = document.getElementById("password").value.trim();
-      if (!usuario || !password) return;
-      localStorage.setItem("usuarioMemeflix", usuario);
-      window.location.href = "home.html"; // redirige al index
-    });
+  document.getElementById("loginForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const usuario = document.getElementById("usuario").value.trim();
+    const password = document.getElementById("password").value.trim();
+    if (!usuario || !password) return;
+
+    // Guardar usuario actual
+    localStorage.setItem("usuarioMemeflix", usuario);
+
+    // === NUEVO: registrar en usuarios activos para estadísticas ===
+    const raw = localStorage.getItem("usuariosSet");
+    const arr = raw ? JSON.parse(raw) : [];
+    if (!arr.includes(usuario)) arr.push(usuario);
+    localStorage.setItem("usuariosSet", JSON.stringify(arr));
+
+    // (Opcional) inicializa o actualiza ranking si lo usas
+     const top = JSON.parse(localStorage.getItem("topUsuarios") || "[]");
+     if (!top.find(u => u.nombre === usuario)) {
+       top.push({ nombre: usuario, memes: 0 });
+       localStorage.setItem("topUsuarios", JSON.stringify(top));
+     }
+
+    // Redirigir al Home
+    window.location.href = "home.html";
+  });
+
 
     // Ajustar canvas al redimensionar
     window.addEventListener("resize", () => {
@@ -76,5 +94,6 @@
   </script>
 </body>
 </html>
+
 
 
