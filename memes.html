@@ -1,112 +1,229 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Memeflix - Memes</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- CSS externo -->
-  <link rel="stylesheet" href="css/memes.css">
-  <link rel="stylesheet" href="css/global.css"> <!-- clase .meme-img -->
+  <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
   <!-- Fondo Matrix -->
-  <canvas id="matrix"></canvas>
+  <canvas id="matrix" aria-hidden="true"></canvas>
 
   <!-- Navbar -->
-  <nav class="navbar">
+  <header class="navbar page-layer" role="banner">
     <div class="logo">MEMEFLIX</div>
-    <ul class="nav-links">
-      <li><a href="home.html">Inicio</a></li>
-      <li><a href="memes.html" class="active">Memes</a></li>
-      <li><a href="sugerencias.html">Sugerencias</a></li>
-      <li><a href="minijuegos.html">Minijuegos</a></li>
-    </ul>
-    <div class="usuario" id="usuarioDisplay"></div>
-  </nav>
-
-  <!-- Hero -->
-  <header class="hero">
-    <h1>Explora los <span class="highlight">Memes</span></h1>
-    <p>Los mejores memes seleccionados para ti, con estilo único.</p>
+    <button class="menu-toggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
+    <nav aria-label="Menú principal">
+      <ul class="nav-links" role="menubar">
+        <li role="none"><a role="menuitem" href="home.html">Inicio</a></li>
+        <li role="none"><a role="menuitem" href="memes.html" class="active">Memes</a></li>
+        <li role="none"><a role="menuitem" href="sugerencias.html">Sugerencias</a></li>
+        <li role="none"><a role="menuitem" href="minijuegos.html">Minijuegos</a></li>
+      </ul>
+    </nav>
+    <div class="nav-right page-layer">
+      <div class="usuario" aria-live="polite"></div>
+      <a id="staffLink" class="btn ghost" href="STAFF/staff.html">Staff</a>
+    </div>
   </header>
 
-  <!-- Galería de memes -->
-  <section class="galeria">
-    <h2 class="section-title">📸 Galería de Memes</h2>
-    <div class="grid">
-      <div class="card">
-        <img src="imagenes/meme1.jpg" alt="Meme 1" class="meme-img">
-        <h3 class="meme-title">Meme 1: El clásico</h3>
+  <main class="page-layer" id="mainContent">
+    <section class="hero">
+      <div class="container">
+        <h1>Explora los <span class="highlight">Memes</span></h1>
+        <p>Los mejores memes seleccionados para ti, con estilo Memeflix.</p>
       </div>
-      <div class="card">
-        <img src="imagenes/meme2.jpg" alt="Meme 2" class="meme-img">
-        <h3 class="meme-title">Meme 2: El inesperado</h3>
+    </section>
+
+    <section class="container" aria-labelledby="galeriaTitle">
+      <h2 id="galeriaTitle" class="section-title">Galería de Memes</h2>
+
+      <!-- Filtros simples -->
+      <div style="display:flex;gap:10px;justify-content:center;margin-bottom:18px;flex-wrap:wrap">
+        <button class="btn ghost" data-filter="all">Todos</button>
+        <button class="btn ghost" data-filter="recientes">Recientes</button>
+        <button class="btn ghost" data-filter="virales">Virales</button>
       </div>
-      <div class="card">
-        <img src="imagenes/meme3.jpg" alt="Meme 3" class="meme-img">
-        <h3 class="meme-title">Meme 3: El viral</h3>
+
+      <!-- Grid de memes -->
+      <div class="grid" id="memeGrid" aria-live="polite">
+        <!-- Ejemplos: sustituye src por tus imágenes reales -->
+        <article class="card" data-tags="recientes" tabindex="0">
+          <img class="meme-img lazy" data-src="imagenes/elpico.jpg" alt="El pico meme" loading="lazy">
+          <div class="card-body">
+            <h3 class="meme-title">El pico</h3>
+            <p class="meme-meta">Clásico</p>
+          </div>
+        </article>
+
+        <article class="card" data-tags="virales" tabindex="0">
+          <img class="meme-img lazy" data-src="imagenes/osfollareconlapoya.jpg" alt="Meme divertido" loading="lazy">
+          <div class="card-body">
+            <h3 class="meme-title">El inesperado</h3>
+            <p class="meme-meta">Viral</p>
+          </div>
+        </article>
+
+        <article class="card" data-tags="recientes" tabindex="0">
+          <img class="meme-img lazy" data-src="imagenes/serie1.jpg" alt="Meme serie" loading="lazy">
+          <div class="card-body">
+            <h3 class="meme-title">Serie 1</h3>
+            <p class="meme-meta">Nuevo</p>
+          </div>
+        </article>
+
+        <article class="card" data-tags="virales" tabindex="0">
+          <img class="meme-img lazy" data-src="imagenes/mono.jpg" alt="Meme mono" loading="lazy">
+          <div class="card-body">
+            <h3 class="meme-title">Mono legendario</h3>
+            <p class="meme-meta">Top</p>
+          </div>
+        </article>
+
+        <!-- Añade más tarjetas según necesites -->
       </div>
-      <div class="card">
-        <img src="imagenes/meme4.jpg" alt="Meme 4" class="meme-img">
-        <h3 class="meme-title">Meme 4: El legendario</h3>
+    </section>
+
+    <!-- Modal ligero para ver meme -->
+    <div id="memeModal" class="glass" role="dialog" aria-modal="true" aria-hidden="true" style="display:none;position:fixed;inset:0;align-items:center;justify-content:center;padding:20px;z-index:1400">
+      <div style="max-width:900px;width:100%;border-radius:12px;overflow:hidden;position:relative;background:#000">
+        <button id="modalClose" aria-label="Cerrar" class="btn" style="position:absolute;right:12px;top:12px;z-index:2">Cerrar</button>
+        <img id="modalImg" src="" alt="" style="width:100%;height:auto;display:block;background:#111">
+        <div style="padding:12px;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <h3 id="modalTitle" style="margin:0;color:var(--accent-red)"></h3>
+            <p id="modalMeta" style="margin:4px 0 0;color:var(--muted)"></p>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button id="btnLike" class="btn ghost" aria-pressed="false">❤ Me gusta</button>
+            <button id="btnDownload" class="btn">Descargar</button>
+          </div>
+        </div>
       </div>
     </div>
-  </section>
 
-  <!-- Footer -->
-  <footer>
-    <p>© 2025 Memeflix - Jaime Muñoz Nicolás</p>
-  </footer>
+    <footer class="page-layer">
+      <div class="container">
+        <p>© 2025 Memeflix - Jaime Muñoz Nicolás</p>
+      </div>
+    </footer>
+  </main>
+
+  <script src="js/matrix.js"></script>
+  <script src="js/main.js"></script>
 
   <script>
-    // Fondo Matrix
-    const canvas = document.getElementById("matrix");
-    const ctx = canvas.getContext("2d");
-    canvas.height = window.innerHeight;
-    canvas.width = window.innerWidth;
-    const letters = "01";
-    const fontSize = 16;
-    const columns = canvas.width / fontSize;
-    const drops = [];
-    for (let x = 0; x < columns; x++) drops[x] = 1;
-    function draw() {
-      ctx.fillStyle = "rgba(0,0,0,0.05)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#0F0";
-      ctx.font = fontSize + "px monospace";
-      for (let i = 0; i < drops.length; i++) {
-        const text = letters[Math.floor(Math.random() * letters.length)];
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-        drops[i]++;
-      }
+  // memes.html - comportamiento específico: lazy load, modal, contador de vistas
+  (function(){
+    // Lazy loading mejorado (usa data-src)
+    const lazyImgs = Array.from(document.querySelectorAll('img.lazy'));
+    const io = ('IntersectionObserver' in window) ? new IntersectionObserver((entries, obs) => {
+      entries.forEach(e => {
+        if(e.isIntersecting){
+          const img = e.target;
+          img.src = img.dataset.src;
+          img.classList.remove('lazy');
+          obs.unobserve(img);
+          // contar vista cuando la imagen se carga
+          img.addEventListener('load', () => {
+            const v = parseInt(localStorage.getItem('memes Vistos') || '0', 10) + 1;
+            localStorage.setItem('memes Vistos', v);
+          }, { once: true });
+        }
+      });
+    }, { rootMargin: '200px' }) : null;
+
+    lazyImgs.forEach(img => io ? io.observe(img) : (img.src = img.dataset.src));
+
+    // Modal
+    const grid = document.getElementById('memeGrid');
+    const modal = document.getElementById('memeModal');
+    const modalImg = document.getElementById('modalImg');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalMeta = document.getElementById('modalMeta');
+    const modalClose = document.getElementById('modalClose');
+    const btnLike = document.getElementById('btnLike');
+    const btnDownload = document.getElementById('btnDownload');
+
+    function openModal(card){
+      const img = card.querySelector('img');
+      modalImg.src = img.src || img.dataset.src;
+      modalImg.alt = img.alt || '';
+      modalTitle.textContent = card.querySelector('.meme-title')?.textContent || 'Meme';
+      modalMeta.textContent = card.querySelector('.meme-meta')?.textContent || '';
+      modal.style.display = 'flex';
+      modal.setAttribute('aria-hidden','false');
+      document.body.style.overflow = 'hidden';
+      // incrementar contador de vistas por apertura
+      const v = parseInt(localStorage.getItem('memes Vistos') || '0', 10) + 1;
+      localStorage.setItem('memes Vistos', v);
     }
-    setInterval(draw, 33);
 
-    // Mostrar usuario
-    const usuario = localStorage.getItem("usuarioMemeflix");
-    if (usuario) document.getElementById("usuarioDisplay").textContent = "👤 " + usuario;
+    function closeModal(){
+      modal.style.display = 'none';
+      modal.setAttribute('aria-hidden','true');
+      document.body.style.overflow = '';
+    }
 
-    // Ajustar canvas al redimensionar
-    window.addEventListener("resize", () => {
-      canvas.height = window.innerHeight;
-      canvas.width = window.innerWidth;
+    grid.addEventListener('click', e => {
+      const card = e.target.closest('.card');
+      if(!card) return;
+      openModal(card);
     });
 
-    // Pase Staff
-    document.getElementById('staffLink').addEventListener('click', () => {
-      sessionStorage.setItem('staffEntry', 'fromIndex');
+    grid.addEventListener('keydown', e => {
+      if(e.key === 'Enter'){
+        const card = e.target.closest('.card');
+        if(card) openModal(card);
+      }
     });
+
+    modalClose.addEventListener('click', closeModal);
+    modal.addEventListener('click', e => { if(e.target === modal) closeModal(); });
+    document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+
+    // Like button (simple contador local)
+    btnLike.addEventListener('click', () => {
+      const liked = btnLike.getAttribute('aria-pressed') === 'true';
+      btnLike.setAttribute('aria-pressed', String(!liked));
+      btnLike.textContent = liked ? '❤ Me gusta' : '❤ Me gusta';
+      // opcional: guardar en localStorage por imagen (no implementado por id)
+    });
+
+    // Descargar imagen (abre en nueva pestaña para que el usuario guarde)
+    btnDownload.addEventListener('click', () => {
+      if(!modalImg.src) return;
+      const a = document.createElement('a');
+      a.href = modalImg.src;
+      a.download = modalTitle.textContent.replace(/\s+/g,'_') || 'meme';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    });
+
+    // Filtros
+    document.querySelectorAll('[data-filter]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const f = btn.getAttribute('data-filter');
+        document.querySelectorAll('#memeGrid .card').forEach(card => {
+          if(f === 'all') card.style.display = '';
+          else card.style.display = (card.dataset.tags || '').includes(f) ? '' : 'none';
+        });
+      });
+    });
+
+    // Mostrar usuario (ya hace main.js, pero reforzamos)
+    const usuario = localStorage.getItem('usuarioMemeflix');
+    document.querySelectorAll('.usuario').forEach(el => el.textContent = usuario ? ` _ ${usuario}` : 'Invitado');
+
+    // A11y: focus trap simple cuando modal abierto (opcional ligero)
+    // No se implementa focus trap completo para mantener simplicidad y compatibilidad.
+  })();
   </script>
-  <script>
-  function inc(key) {
-    const v = parseInt(localStorage.getItem(key) || "0", 10) + 1;
-    localStorage.setItem(key, v);
-  }
-  // Ejemplo: cada vez que se carga un lote de memes
-  inc("memesVistos");
-</script>
 </body>
 </html>
+
+
 
 
