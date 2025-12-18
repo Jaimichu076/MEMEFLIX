@@ -1,232 +1,374 @@
-// js/buscameemes.js — Motor Buscaminas Memeflix (modular y robusto)
+/* Buscamemes (Minesweeper clásico)
+   - Tres niveles: fácil, intermedio, six seveeeen (muy grande)
+   - Progresión: ganar fácil -> desbloquear intermedio; ganar intermedio -> desbloquear six seveeeen
+   - Cronómetro: desde que empieza el nivel hasta ganar o perder
+   - Primer clic seguro: nunca cae sobre una mina (reubica minas si es necesario)
+   - Gameplay clásico: números 1–8, expansión en cascada (0), banderas con clic derecho
+   - Imagen personalizada para las minas (memes)
+*/
 (() => {
-  const levels = {
-    facil:       { cols: 9,  rows: 9,  mines: 10, label: 'Fácil' },
-    intermedio:  { cols: 13, rows: 13, mines: 24, label: 'Intermedio' },
-    sixseveeeen: { cols: 16, rows: 16, mines: 36, label: 'Six Seveeeen' }
-  };
+  const MEME_IMAGE = "../imagenes/sixseven.jpg";
+
+  // DOM
+  const tableroDiv = document.getElementById("tablero");
+  const estadoDiv = document.getElementById("estado");
+  const timerSpan = document.getElementById("timer");
+  const safeLeftSpan = document.getElementById("safeLeft");
+  const nivelActualSpan = document.getElementById("nivelActual");
+  const btnReiniciar = document.getElementById("btnReiniciar");
+  const btnFacil = document.getElementById("btnFacil");
+  const btnIntermedio = document.getElementById("btnIntermedio");
+  const btnSix = document.getElementById("btnSix");
 
   // Estado
-  let state = {
-    key: null,
-    grid: [],
-    cols: 0,
-    rows: 0,
-    mines: 0,
-    safeLeft: 0,
-    running: false,
-    time: 0,
-    timerId: null
-  };
+  let filas = 0, columnas = 0, numMinas = 0;
+  let nivel = null;
+  let grid = [];
+  let reveladasSeguras = 0;
+  let terminado = false;
+  let primerClickHecho = false;
 
-  // UI (inyectada por HTML)
-  const UI = window.BuscaminesUI || {};
-  const boardEl = UI.boardEl || document.getElementById('board');
-  const hud = UI.hud || {
-    level: document.getElementById('hudLevel'),
-    timer: document.getElementById('hudTimer'),
-    safe:  document.getElementById('hudSafe'),
-    state: document.getElementById('hudState')
-  };
-  const btnReset = UI.btnReset || document.getElementById('btnReset');
-  const toast = UI.showToast || ((t)=>console.log('[Toast]',t));
+  // Cronómetro
+  let startTime = null;
+  let timerInterval = null;
 
-  // Utilidades
-  function setHudState(msg){ if(hud.state) hud.state.textContent = msg; }
-  function setHudTimer(t){ if(hud.timer) hud.timer.textContent = formatTime(t); }
-  function setHudLevel(label){ if(hud.level) hud.level.textContent = label; }
-  function setHudSafe(n){ if(hud.safe) hud.safe.textContent = n; }
-  function formatTime(t){ const m=String(Math.floor(t/60)).padStart(2,'0'); const s=String(t%60).padStart(2,'0'); return `${m}:${s}`; }
+  // Progreso
+  function cargarProgreso() {
+    return localStorage.getItem("buscamemesProgreso") || "facil";
+  }
+  function guardarProgreso(estado) {
+    localStorage.setItem("buscamemesProgreso", estado);
+  }
 
-  function startTimer(){
+  // Bloqueo por progreso
+  function actualizarBloqueos() {
+    const p = cargarProgreso();
+    btnFacil.disabled = false;
+    btnIntermedio.disabled = p === "facil";
+    btnSix.disabled = p !== "sixseveeeen";
+  }
+
+  // Timer
+  function formatTime(ms) {
+    const s = Math.floor(ms / 1000);
+    const mm = String(Math.floor(s / 60)).padStart(2, "0");
+    const ss = String(s % 60).padStart(2, "0");
+    return `${mm}:${ss}`;
+  }
+  function startTimer() {
     stopTimer();
-    state.time = 0;
-    setHudTimer(state.time);
-    state.timerId = setInterval(() => {
-      if(!state.running) return;
-      state.time++;
-      setHudTimer(state.time);
-    }, 1000);
+    startTime = Date.now();
+    timerSpan.textContent = "00:00";
+    timerInterval = setInterval(() => {
+      timerSpan.textContent = formatTime(Date.now() - startTime);
+    }, 250);
   }
-  function stopTimer(){
-    if(state.timerId){ clearInterval(state.timerId); state.timerId = null; }
+  function stopTimer() {
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
   }
 
-  // Motor: arranque de nivel
-  function start(levelKey){
-    const L = levels[levelKey];
-    if(!L){ setHudState('Nivel no válido.'); return; }
+  // API global (usada por los botones del HTML)
+  window.iniciarJuego = function (nivelSeleccionado) {
+    const progreso = cargarProgreso();
+    if (nivelSeleccionado === "intermedio" && progreso === "facil") {
+      estadoDiv.textContent = "🔒 Debes ganar el nivel Fácil para desbloquear Intermedio.";
+      return;
+    }
+    if (nivelSeleccionado === "sixseveeeen" && (progreso === "facil" || progreso === "intermedio")) {
+      estadoDiv.textContent = "🔒 Debes ganar Intermedio para desbloquear Six Seveeeen.";
+      return;
+    }
+    configurarNivel(nivelSeleccionado);
+    nuevaPartida();
+    nivelActualSpan.textContent = nivelLabel(nivelSeleccionado);
+    estadoDiv.textContent = "🟢 ¡En marcha! Clic izquierdo: revelar | Clic derecho: bandera";
+    btnReiniciar.disabled = false;
+    startTimer();
+  };
 
-    state.key = levelKey;
-    state.cols = L.cols; state.rows = L.rows; state.mines = L.mines;
-    state.running = true;
-    state.time = 0;
-    setHudLevel(L.label);
-    setHudTimer(0);
+  function configurarNivel(n) {
+    nivel = n;
+    const root = document.documentElement;
+    if (n === "facil") {
+      filas = 8; columnas = 8; numMinas = 10; root.style.setProperty("--cell-size", "40px");
+    } else if (n === "intermedio") {
+      filas = 12; columnas = 12; numMinas = 20; root.style.setProperty("--cell-size", "36px");
+    } else if (n === "sixseveeeen") {
+      filas = 20; columnas = 20; numMinas = 60; root.style.setProperty("--cell-size", "28px");
+    }
+  }
 
-    // Crear grid vacío
-    state.grid = Array.from({ length: state.rows }, () =>
-      Array.from({ length: state.cols }, () => ({
-        revealed: false, mine: false, flag: false, num: 0
+  function nuevaPartida() {
+    terminado = false;
+    primerClickHecho = false;
+    reveladasSeguras = 0;
+    timerSpan.textContent = "00:00";
+    construirGridVacio();
+    plantarMinasNumerosAleatorio(); // se recalcula tras el primer clic seguro
+    renderTablero();
+    actualizarHUD();
+  }
+
+  function nivelLabel(n) {
+    if (n === "facil") return "Fácil";
+    if (n === "intermedio") return "Intermedio";
+    if (n === "sixseveeeen") return "Six Seveeeen";
+    return "—";
+  }
+
+  function construirGridVacio() {
+    grid = Array.from({ length: filas }, () =>
+      Array.from({ length: columnas }, () => ({
+        mine: false,
+        number: 0,
+        revealed: false,
+        flagged: false
       }))
     );
+  }
 
-    // Colocar minas
-    let placed = 0;
-    while(placed < state.mines){
-      const x = Math.floor(Math.random() * state.cols);
-      const y = Math.floor(Math.random() * state.rows);
-      if(!state.grid[y][x].mine){
-        state.grid[y][x].mine = true;
-        placed++;
+  function plantarMinasNumerosAleatorio(excluirCoord = null, expandir = false) {
+    let colocadas = 0;
+    while (colocadas < numMinas) {
+      const f = Math.floor(Math.random() * filas);
+      const c = Math.floor(Math.random() * columnas);
+
+      // Evitar mina inicial y vecinas
+      if (excluirCoord) {
+        if (Math.abs(f - excluirCoord.f) <= 1 && Math.abs(c - excluirCoord.c) <= 1) continue;
+      }
+
+      if (grid[f][c].mine) continue;
+      grid[f][c].mine = true;
+      colocadas++;
+    }
+
+    // Números
+    for (let f = 0; f < filas; f++) {
+      for (let c = 0; c < columnas; c++) {
+        if (grid[f][c].mine) { grid[f][c].number = 0; continue; }
+        grid[f][c].number = contarMinasVecinas(f, c);
       }
     }
 
-    // Calcular números
-    for(let y=0;y<state.rows;y++){
-      for(let x=0;x<state.cols;x++){
-        if(state.grid[y][x].mine) continue;
-        let c=0;
-        for(let dy=-1;dy<=1;dy++){
-          for(let dx=-1;dx<=1;dx++){
-            const ny=y+dy, nx=x+dx;
-            if(ny>=0 && ny<state.rows && nx>=0 && nx<state.cols && state.grid[ny][nx].mine) c++;
-          }
+    // Expansión inicial automática (si procede)
+    if (expandir && excluirCoord) {
+      revelarCelda(excluirCoord.f, excluirCoord.c);
+      if (grid[excluirCoord.f][excluirCoord.c].number === 0) {
+        expandirCeros(excluirCoord.f, excluirCoord.c);
+      }
+    }
+  }
+
+  function contarMinasVecinas(f, c) {
+    let count = 0;
+    for (let df = -1; df <= 1; df++) {
+      for (let dc = -1; dc <= 1; dc++) {
+        if (df === 0 && dc === 0) continue;
+        const nf = f + df, nc = c + dc;
+        if (nf >= 0 && nf < filas && nc >= 0 && nc < columnas) {
+          if (grid[nf][nc].mine) count++;
         }
-        state.grid[y][x].num = c;
       }
     }
-
-    // Seguras
-    state.safeLeft = state.cols * state.rows - state.mines;
-    setHudSafe(state.safeLeft);
-
-    // Render y timer
-    renderBoard();
-    btnReset.disabled = false;
-    setHudState('¡Evita las minas y revela todas las seguras!');
-    startTimer();
+    return count;
   }
 
-  function reset(){
-    if(!state.key) return;
-    start(state.key);
-    toast('Nivel reiniciado');
-  }
+  // Render tablero
+  function renderTablero() {
+    tableroDiv.style.gridTemplateColumns = `repeat(${columnas}, var(--cell-size))`;
+    tableroDiv.innerHTML = "";
 
-  // Render tablero y bind eventos
-  function renderBoard(){
-    boardEl.innerHTML = '';
-    boardEl.style.gridTemplateColumns = `repeat(${state.cols}, var(--cell-size))`;
-    for(let y=0;y<state.rows;y++){
-      for(let x=0;x<state.cols;x++){
-        const btn = document.createElement('button');
-        btn.className = 'cell';
-        btn.type = 'button';
-        btn.dataset.x = x;
-        btn.dataset.y = y;
-        btn.setAttribute('aria-label', `Celda ${x+1},${y+1}`);
-        btn.tabIndex = 0;
+    for (let f = 0; f < filas; f++) {
+      for (let c = 0; c < columnas; c++) {
+        const celda = document.createElement("div");
+        celda.className = "celda";
+        celda.dataset.f = f;
+        celda.dataset.c = c;
 
-        btn.addEventListener('click', () => reveal(x,y));
-        btn.addEventListener('contextmenu', (e) => { e.preventDefault(); toggleFlag(x,y); });
+        // Click izquierdo: revelar
+        celda.addEventListener("click", onLeftClick);
 
-        boardEl.appendChild(btn);
+        // Click derecho: bandera
+        celda.addEventListener("contextmenu", (e) => {
+          e.preventDefault();
+          onRightClick(celda);
+        });
+
+        tableroDiv.appendChild(celda);
       }
     }
   }
 
-  function getBtn(x,y){
-    return boardEl.querySelector(`.cell[data-x="${x}"][data-y="${y}"]`);
+  function onLeftClick(e) {
+    if (terminado) return;
+    const celda = e.currentTarget;
+    const f = parseInt(celda.dataset.f, 10);
+    const c = parseInt(celda.dataset.c, 10);
+    const cell = grid[f][c];
+
+    if (cell.revealed || cell.flagged) return;
+
+    // Primer clic seguro
+    if (!primerClickHecho) {
+      primerClickHecho = true;
+      construirGridVacio();
+      plantarMinasNumerosAleatorio({ f, c }, true);
+      // Reiniciar cronómetro para contar desde el clic inicial real (opcional)
+      startTimer();
+    }
+
+    revelarCelda(f, c);
+    comprobarVictoria();
+    actualizarHUD();
   }
 
-  function reveal(x,y){
-    if(!state.running) return;
-    const c = state.grid[y][x];
-    if(c.revealed || c.flag) return;
+  function onRightClick(celda) {
+    if (terminado) return;
+    const f = parseInt(celda.dataset.f, 10);
+    const c = parseInt(celda.dataset.c, 10);
+    const cell = grid[f][c];
 
-    c.revealed = true;
-    const btn = getBtn(x,y);
-    if(!btn) return;
-    btn.classList.add('revealed');
+    if (cell.revealed) return;
 
-    if(c.mine){
-      btn.textContent = '💣';
-      btn.classList.add('meme');
-      gameOver(false);
+    cell.flagged = !cell.flagged;
+    dibujarCelda(f, c);
+  }
+
+  function revelarCelda(f, c) {
+    const cell = grid[f][c];
+    if (cell.revealed || cell.flagged) return;
+
+    cell.revealed = true;
+    dibujarCelda(f, c);
+
+    if (cell.mine) {
+      finDePartida(false);
       return;
     }
 
-    state.safeLeft--;
-    setHudSafe(state.safeLeft);
-
-    if(c.num > 0){
-      btn.textContent = c.num;
-      btn.classList.add('n' + c.num);
-    } else {
-      btn.textContent = '';
-      floodReveal(x,y);
-    }
-
-    if(state.safeLeft === 0){
-      gameOver(true);
+    reveladasSeguras++;
+    if (cell.number === 0) {
+      expandirCeros(f, c);
     }
   }
 
-  function floodReveal(x,y){
-    for(let dy=-1;dy<=1;dy++){
-      for(let dx=-1;dx<=1;dx++){
-        const nx=x+dx, ny=y+dy;
-        if(nx<0 || ny<0 || nx>=state.cols || ny>=state.rows) continue;
-        const c = state.grid[ny][nx];
-        if(!c.revealed && !c.mine && !c.flag) reveal(nx,ny);
-      }
-    }
-  }
+  function expandirCeros(f, c) {
+    const stack = [[f, c]];
+    while (stack.length) {
+      const [rf, rc] = stack.pop();
+      for (let df = -1; df <= 1; df++) {
+        for (let dc = -1; dc <= 1; dc++) {
+          const nf = rf + df, nc = rc + dc;
+          if (nf < 0 || nf >= filas || nc < 0 || nc >= columnas) continue;
+          const ncell = grid[nf][nc];
+          if (ncell.revealed || ncell.flagged) continue;
+          if (ncell.mine) continue;
 
-  function toggleFlag(x,y){
-    if(!state.running) return;
-    const c = state.grid[y][x];
-    if(c.revealed) return;
-    c.flag = !c.flag;
-
-    const btn = getBtn(x,y);
-    if(!btn) return;
-    btn.classList.toggle('flag', c.flag);
-    btn.textContent = c.flag ? '⚑' : '';
-  }
-
-  function gameOver(victory){
-    state.running = false;
-    stopTimer();
-    revealAll();
-    setHudState(victory ? '¡Victoria! Todas las seguras reveladas.' : '¡Has encontrado una mina! Fin del juego.');
-    // registrar partida (demo)
-    try {
-      const v = parseInt(localStorage.getItem('minijuegosJugados') || '0', 10) + 1;
-      localStorage.setItem('minijuegosJugados', String(v));
-    } catch {}
-  }
-
-  function revealAll(){
-    for(let y=0;y<state.rows;y++){
-      for(let x=0;x<state.cols;x++){
-        const c = state.grid[y][x];
-        const btn = getBtn(x,y);
-        if(!btn) continue;
-        btn.classList.add('revealed');
-        if(c.mine){
-          btn.textContent = '💣';
-          btn.classList.add('meme');
-        } else {
-          btn.textContent = c.num > 0 ? c.num : '';
-          if(c.num > 0) btn.classList.add('n' + c.num);
+          ncell.revealed = true;
+          dibujarCelda(nf, nc);
+          reveladasSeguras++;
+          if (ncell.number === 0) stack.push([nf, nc]);
         }
       }
     }
   }
 
-  // Exponer API pública
-  window.Buscamines = { start, reset };
+  function dibujarCelda(f, c) {
+    const idx = f * columnas + c;
+    const div = tableroDiv.children[idx];
+    const cell = grid[f][c];
+
+    // Reset
+    div.style.backgroundImage = "";
+    div.textContent = "";
+    div.classList.remove("revelada", "meme");
+
+    if (cell.revealed) {
+      div.classList.add("revelada");
+      if (cell.mine) {
+        div.classList.add("meme");
+        div.style.backgroundImage = `url("${MEME_IMAGE}")`;
+      } else if (cell.number > 0) {
+        div.textContent = cell.number;
+        div.style.color = colorNumero(cell.number);
+        div.style.fontWeight = "600";
+      } else {
+        div.textContent = "";
+      }
+    } else {
+      if (cell.flagged) {
+        div.textContent = "⚑";
+        div.style.color = "#e50914";
+        div.style.fontWeight = "700";
+      }
+    }
+  }
+
+  function colorNumero(n) {
+    switch (n) {
+      case 1: return "#3fa7f3";
+      case 2: return "#3fbf6f";
+      case 3: return "#f44336";
+      case 4: return "#7e57c2";
+      case 5: return "#795548";
+      case 6: return "#26a69a";
+      case 7: return "#c0ca33";
+      case 8: return "#9e9e9e";
+      default: return "#ffffff";
+    }
+  }
+
+  function comprobarVictoria() {
+    const segurasTotal = filas * columnas - numMinas;
+    if (reveladasSeguras >= segurasTotal) finDePartida(true);
+  }
+
+  function finDePartida(victoria) {
+    terminado = true;
+    stopTimer();
+    mostrarTodo();
+    const tiempo = formatTime(Date.now() - startTime);
+    if (victoria) {
+      estadoDiv.textContent = `🏆 ¡Has ganado! Tiempo: ${tiempo}`;
+      const progreso = cargarProgreso();
+      if (nivel === "facil" && progreso === "facil") guardarProgreso("intermedio");
+      else if (nivel === "intermedio" && (progreso === "intermedio" || progreso === "facil")) guardarProgreso("sixseveeeen");
+      actualizarBloqueos();
+    } else {
+      estadoDiv.textContent = `💥 Has pisado un meme. Tiempo: ${tiempo}`;
+    }
+  }
+
+  function mostrarTodo() {
+    for (let f = 0; f < filas; f++) {
+      for (let c = 0; c < columnas; c++) {
+        grid[f][c].revealed = true;
+        dibujarCelda(f, c);
+      }
+    }
+  }
+
+  function actualizarHUD() {
+    const segurasTotal = filas * columnas - numMinas;
+    safeLeftSpan.textContent = Math.max(segurasTotal - reveladasSeguras, 0);
+  }
+
+  window.reiniciarNivel = function () {
+    if (!nivel) return;
+    nuevaPartida();
+    estadoDiv.textContent = "🔄 Nivel reiniciado. ¡Suerte!";
+    startTimer();
+  };
+
+  // Init
+  actualizarBloqueos();
+  estadoDiv.textContent = "Selecciona un nivel para comenzar.";
+  timerSpan.textContent = "00:00";
+  safeLeftSpan.textContent = "—";
+  nivelActualSpan.textContent = "—";
 })();
 
