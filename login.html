@@ -1,99 +1,54 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Login Memeflix</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Enlace al CSS externo -->
-  <link rel="stylesheet" href="css/login.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Login - Memeflix</title>
+  <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-  <!-- Fondo Matrix -->
   <canvas id="matrix"></canvas>
+  <header class="navbar page-layer">
+    <div class="logo">MEMEFLIX</div>
+    <button class="menu-toggle" aria-label="Abrir menú">☰</button>
+    <nav><ul class="nav-links"><li><a href="index.html">Inicio</a></li></ul></nav>
+    <div class="nav-right page-layer"><div class="usuario"></div></div>
+  </header>
 
-  <!-- Caja de login -->
-  <div id="loginBox">
-    <h2>Inicia sesión en Memeflix</h2>
-    <form id="loginForm">
-      <input type="text" id="usuario" placeholder="Usuario" required>
-      <input type="password" id="password" placeholder="Contraseña" required>
-      <button type="submit">Entrar</button>
-    </form>
-  </div>
+  <main class="page-layer">
+    <section style="padding:120px 16px 40px">
+      <div class="form-card container">
+        <h2 style="color:var(--accent-red);margin-top:0">Inicia sesión en Memeflix</h2>
+        <form id="loginForm">
+          <input id="usuario" type="text" placeholder="Usuario" required>
+          <input id="password" type="password" placeholder="Contraseña" required>
+          <button class="btn" type="submit">Entrar</button>
+        </form>
+      </div>
+    </section>
+  </main>
 
+  <script src="js/matrix.js"></script>
+  <script src="js/main.js"></script>
   <script>
-    // Fondo Matrix con binario cayendo
-    const canvas = document.getElementById("matrix");
-    const ctx = canvas.getContext("2d");
-
-    canvas.height = window.innerHeight;
-    canvas.width = window.innerWidth;
-
-    const letters = "01";
-    const fontSize = 16;
-    const columns = canvas.width / fontSize;
-    const drops = [];
-
-    for (let x = 0; x < columns; x++) {
-      drops[x] = 1;
-    }
-
-    function draw() {
-      ctx.fillStyle = "rgba(0,0,0,0.05)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.fillStyle = "#0F0"; // verde Matrix
-      ctx.font = fontSize + "px monospace";
-
-      for (let i = 0; i < drops.length; i++) {
-        const text = letters[Math.floor(Math.random() * letters.length)];
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-          drops[i] = 0;
-        }
-        drops[i]++;
-      }
-    }
-
-    setInterval(draw, 33);
-
-    // Login
-  document.getElementById("loginForm").addEventListener("submit", e => {
-    e.preventDefault();
-    const usuario = document.getElementById("usuario").value.trim();
-    const password = document.getElementById("password").value.trim();
-    if (!usuario || !password) return;
-
-    // Guardar usuario actual
-    localStorage.setItem("usuarioMemeflix", usuario);
-
-    // === NUEVO: registrar en usuarios activos para estadísticas ===
-    const raw = localStorage.getItem("usuariosSet");
-    const arr = raw ? JSON.parse(raw) : [];
-    if (!arr.includes(usuario)) arr.push(usuario);
-    localStorage.setItem("usuariosSet", JSON.stringify(arr));
-
-    // (Opcional) inicializa o actualiza ranking si lo usas
-     const top = JSON.parse(localStorage.getItem("topUsuarios") || "[]");
-     if (!top.find(u => u.nombre === usuario)) {
-       top.push({ nombre: usuario, memes: 0 });
-       localStorage.setItem("topUsuarios", JSON.stringify(top));
-     }
-
-    // Redirigir al Home
-    window.location.href = "home.html";
-  });
-
-
-    // Ajustar canvas al redimensionar
-    window.addEventListener("resize", () => {
-      canvas.height = window.innerHeight;
-      canvas.width = window.innerWidth;
+    document.getElementById('loginForm').addEventListener('submit', e=>{
+      e.preventDefault();
+      const usuario = document.getElementById('usuario').value.trim();
+      const password = document.getElementById('password').value.trim();
+      if(!usuario || !password) return;
+      localStorage.setItem('usuarioMemeflix', usuario);
+      // registrar en usuariosSet
+      const raw = localStorage.getItem('usuariosSet');
+      const arr = raw ? JSON.parse(raw) : [];
+      if(!arr.includes(usuario)) arr.push(usuario);
+      localStorage.setItem('usuariosSet', JSON.stringify(arr));
+      // ranking inicial
+      const top = JSON.parse(localStorage.getItem('topUsuarios') || '[]');
+      if(!top.find(u=>u.nombre===usuario)) { top.push({nombre:usuario,memes:0}); localStorage.setItem('topUsuarios', JSON.stringify(top)); }
+      window.location.href = 'home.html';
     });
   </script>
 </body>
 </html>
-
 
 
