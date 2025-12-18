@@ -97,8 +97,19 @@
     const v = parseInt(localStorage.getItem("visitas") || "0", 10) + 1;
     localStorage.setItem("visitas", v);
   </script>
+  <script>
+  let segundos = 0;
+  setInterval(() => {
+    segundos++;
+    if (segundos % 60 === 0) {
+      const mins = parseInt(localStorage.getItem("tiempoEnSitio") || "0", 10) + 1;
+      localStorage.setItem("tiempoEnSitio", mins);
+    }
+  }, 1000);
+</script>
 </body>
 </html>
+
 
 
 
